@@ -2,10 +2,12 @@
 <html lang="sw">
 
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Login - Sokohub</title>
+<title>Login - SokoHub</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -15,25 +17,32 @@
 
 <div class="login-box">
 
-    <h1>Sokohub</h1>
+    <h1>🛒 SokoHub</h1>
 
-    <h2>Karibu</h2>
+    <h2>Karibu Tena</h2>
 
     <input
         type="email"
         id="email"
         placeholder="Email"
+        autocomplete="email"
     >
 
     <input
         type="password"
         id="password"
         placeholder="Password"
+        autocomplete="current-password"
     >
 
-    <button onclick="loginUser()">
-        Ingia
+    <button
+        id="loginButton"
+        onclick="loginUser()"
+    >
+        🔐 Ingia
     </button>
+
+    <p id="loginMessage"></p>
 
     <p>
         Huna Account?
@@ -42,7 +51,305 @@
 
 </div>
 
-<script type="module" src="auth.js"></script>
+
+<script type="module">
+
+import { auth, db } from "./firebase.js";
+
+import {
+    signInWithEmailAndPassword,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+import {
+    doc,
+    getDoc
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+
+const emailInput =
+    document.getElementById("email");
+
+const passwordInput =
+    document.getElementById("password");
+
+const loginButton =
+    document.getElementById("loginButton");
+
+const loginMessage =
+    document.getElementById("loginMessage");
+
+
+// ==================================================
+// LOGIN
+// ==================================================
+
+window.loginUser = async function () {
+
+    const email =
+        emailInput.value.trim();
+
+    const password =
+        passwordInput.value;
+
+
+    if (!email) {
+
+        loginMessage.textContent =
+            "❌ Weka email yako.";
+
+        return;
+    }
+
+
+    if (!password) {
+
+        loginMessage.textContent =
+            "❌ Weka password yako.";
+
+        return;
+    }
+
+
+    loginButton.disabled = true;
+
+    loginButton.textContent =
+        "⏳ Inaingia...";
+
+    loginMessage.textContent = "";
+
+
+    try {
+
+        // ------------------------------------------
+        // FIREBASE LOGIN
+        // ------------------------------------------
+
+        const result =
+            await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+
+
+        const user =
+            result.user;
+
+
+        console.log(
+            "✅ LOGIN SUCCESS:",
+            user.uid
+        );
+
+
+        // ------------------------------------------
+        // GET USER PROFILE
+        // ------------------------------------------
+
+        const userRef =
+            doc(
+                db,
+                "users",
+                user.uid
+            );
+
+
+        const userSnap =
+            await getDoc(userRef);
+
+
+        if (!userSnap.exists()) {
+
+            loginMessage.textContent =
+                "❌ Akaunti imeingia lakini taarifa za user hazipo.";
+
+            loginButton.disabled = false;
+
+            loginButton.textContent =
+                "🔐 Ingia";
+
+            return;
+        }
+
+
+        const userData =
+            userSnap.data();
+
+
+        console.log(
+            "👤 USER DATA:",
+            userData
+        );
+
+
+        const role =
+            String(
+                userData.role || ""
+            ).toLowerCase().trim();
+
+
+        // ------------------------------------------
+        // SAVE USER INFO
+        // ------------------------------------------
+
+        localStorage.setItem(
+            "sokohubUser",
+            JSON.stringify({
+
+                uid: user.uid,
+
+                email: user.email,
+
+                role: role,
+
+                fullName:
+                    userData.fullName || ""
+
+            })
+        );
+
+
+        // ------------------------------------------
+        // REDIRECT
+        // ------------------------------------------
+
+        loginMessage.textContent =
+            "✅ Login imefanikiwa. Inafungua dashboard...";
+
+
+        if (role === "customer") {
+
+            window.location.href =
+                "customer.html";
+
+        }
+
+        else if (
+            role === "seller" ||
+            role === "supplier" ||
+            role === "retailer"
+        ) {
+
+            window.location.href =
+                "seller.html";
+
+        }
+
+        else if (role === "farmer") {
+
+            window.location.href =
+                "farmer.html";
+
+        }
+
+        else if (role === "rider") {
+
+            window.location.href =
+                "rider.html";
+
+        }
+
+        else {
+
+            loginMessage.textContent =
+                "⚠️ Login imefanikiwa lakini role ya akaunti haijulikani.";
+
+            loginButton.disabled = false;
+
+            loginButton.textContent =
+                "🔐 Ingia";
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ LOGIN ERROR:",
+            error
+        );
+
+
+        let message =
+            "Login imeshindikana.";
+
+
+        if (
+            error.code ===
+            "auth/invalid-credential"
+        ) {
+
+            message =
+                "❌ Email au password si sahihi.";
+
+        }
+
+        else if (
+            error.code ===
+            "auth/user-not-found"
+        ) {
+
+            message =
+                "❌ Akaunti hii haipo.";
+
+        }
+
+        else if (
+            error.code ===
+            "auth/wrong-password"
+        ) {
+
+            message =
+                "❌ Password si sahihi.";
+
+        }
+
+        else if (
+            error.code ===
+            "auth/invalid-email"
+        ) {
+
+            message =
+                "❌ Email si sahihi.";
+
+        }
+
+        else if (
+            error.code ===
+            "auth/too-many-requests"
+        ) {
+
+            message =
+                "⚠️ Jaribu tena baada ya muda.";
+
+        }
+
+        else {
+
+            message =
+                "❌ " +
+                error.message;
+
+        }
+
+
+        loginMessage.textContent =
+            message;
+
+
+        loginButton.disabled =
+            false;
+
+        loginButton.textContent =
+            "🔐 Ingia";
+
+    }
+
+};
+
+</script>
 
 </body>
+
 </html>
