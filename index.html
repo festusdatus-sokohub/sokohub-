@@ -4,11 +4,18 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add Product - SokoLink</title>
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-<link rel="stylesheet" href="style.css">
+<title>SokoHub</title>
+
+<link
+    rel="stylesheet"
+    href="style.css"
+>
 
 </head>
 
@@ -16,113 +23,36 @@
 <body>
 
 
-<div class="login-box">
+<div class="home">
 
-<h1>SokoLink</h1>
+    <h1>🛒 SokoHub</h1>
 
-<h2>Ongeza Bidhaa</h2>
+    <h2>Karibu SokoHub</h2>
 
+    <p>
+        Nunua, uza na peleka bidhaa kwa urahisi.
+    </p>
 
-<input type="text" placeholder="Jina la bidhaa">
-
-
-<input type="number" placeholder="Bei (TZS)">
-
-
-<input type="number" placeholder="Kiasi kilichopo">
+    <br>
 
 
-<select>
-
-<option>Aina ya bidhaa</option>
-
-<option>Mboga</option>
-
-<option>Matunda</option>
-
-<option>Chakula</option>
-
-<option>Vifaa</option>
-
-</select>
+    <button
+        onclick="location.href='login.html'"
+    >
+        🔐 Login
+    </button>
 
 
-<input type="text" placeholder="Mahali bidhaa ilipo">
-
-
-<button>
-<button onclick="saveProduct()">
-Hifadhi Bidhaa
-</button>
-</button>
+    <button
+        onclick="location.href='register.html'"
+    >
+        📝 Jisajili
+    </button>
 
 
 </div>
 
-<script src="script.js"></script>
-</body>
-
-</html>
-Jina: Nyanya
-Bei: 2000
-Kiasi: 50
-Mahali: Temeke
-Mchele
-Bei: 3500
-Kiasi: 100
-Mahali: Dar es Salaam
-...
-
-<script type="module" src="firebase.js"></script>
-<script src="script.js"></script>
-<script type="module">
-import { auth, db } from "./firebase.js";
-
-import {
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-
-import {
-    doc,
-    getDoc
-} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
-
-onAuthStateChanged(auth, async (user) => {
-
-    if (!user) {
-        window.location.href = "login.html";
-        return;
-    }
-
-    const userDoc = await getDoc(
-        doc(db, "users", user.uid)
-    );
-
-    if (!userDoc.exists()) {
-        window.location.href = "login.html";
-        return;
-    }
-
-    const userData = userDoc.data();
-
-    if (userData.role === "customer") {
-        window.location.href = "customer.html";
-
-    } else if (userData.role === "farmer") {
-        window.location.href = "farmer.html";
-
-    } else if (
-        userData.role === "supplier" ||
-        userData.role === "retailer"
-    ) {
-        window.location.href = "seller.html";
-
-    } else if (userData.role === "rider") {
-        window.location.href = "rider.html";
-    }
-
-});
-</script>
 
 </body>
+
 </html>
