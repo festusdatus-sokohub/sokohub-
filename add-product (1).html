@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="sw">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Ongeza Bidhaa - SokoHub</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="login-box">
+
+    <h1>SokoHub 🛒</h1>
+
+    <h2>Ongeza Bidhaa</h2>
+
+
+    <!-- JINA LA BIDHAA -->
+
+    <input
+        type="text"
+        id="productName"
+        placeholder="Jina la bidhaa"
+    >
+
+
+    <!-- BEI -->
+
+    <input
+        type="number"
+        id="productPrice"
+        placeholder="Bei (TZS)"
+    >
+
+
+    <!-- STOCK -->
+
+    <input
+        type="number"
+        id="productQuantity"
+        placeholder="Kiasi kilichopo"
+    >
+
+
+    <!-- CATEGORY -->
+
+    <select id="productCategory">
+
+        <option value="">Chagua aina ya bidhaa</option>
+
+        <option value="mboga">🥦 Mboga</option>
+
+        <option value="matunda">🍎 Matunda</option>
+
+        <option value="chakula">🍚 Chakula</option>
+
+        <option value="vifaa">🏠 Vifaa</option>
+
+    </select>
+
+
+    <!-- LOCATION -->
+
+    <input
+        type="text"
+        id="productLocation"
+        placeholder="Mahali bidhaa ilipo"
+    >
+
+
+    <!-- SAVE -->
+
+    <button onclick="saveProduct()">
+        💾 Hifadhi Bidhaa
+    </button>
+
+
+    <br><br>
+
+    <button onclick="location.href='customer.html'">
+        ← Rudi Dashboard
+    </button>
+
+</div>
+
+
+<!-- Firebase -->
+
+<script type="module" src="firebase.js"></script>
+
+<script type="module">
+
+    import { db, auth } from "./firebase.js";
+
+    import {
+        collection,
+        addDoc,
+        serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+
+    window.saveProduct = async function () {
+
+        const productName =
+            document.getElementById("productName").value.trim();
+
+        const productPrice =
+            document.getElementById("productPrice").value;
+
+        const productQuantity =
+            document.getElementById("productQuantity").value;
+
+        const productCategory =
+            document.getElementById("productCategory").value;
+
+        const productLocation =
+            document.getElementById("productLocation").value.trim();
+
+
+        // CHECK
+
+        if (
+            !productName ||
+            !productPrice ||
+            !productQuantity ||
+            !productCategory ||
+            !productLocation
+        ) {
+
+            alert("Tafadhali jaza taarifa zote za bidhaa.");
+
+            return;
+        }
+
+
+        // CHECK LOGIN
+
+        const user = auth.currentUser;
+
+        if (!user) {
+
+            alert("Tafadhali login kwanza.");
+
+            window.location.href = "login.html";
+
+            return;
+        }
+
+
+        try {
+
+            await addDoc(
+                collection(db, "products"),
+                {
+
+                    name: productName,
+
+                    price: Number(productPrice),
+
+                    quantity: Number(productQuantity),
+
+                    category: productCategory,
+
+                    location: productLocation,
+
+                    sellerId: user.uid,
+
+                    createdAt: serverTimestamp()
+
+                }
+            );
+
+
+            alert("Bidhaa imehifadhiwa kikamilifu! ✅");
+
+
+            // CLEAR FORM
+
+            document.getElementById("productName").value = "";
+
+            document.getElementById("productPrice").value = "";
+
+            document.getElementById("productQuantity").value = "";
+
+            document.getElementById("productCategory").value = "";
+
+            document.getElementById("productLocation").value = "";
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                "Bidhaa haijahifadhiwa: " +
+                error.message
+            );
+
+        }
+
+    };
+
+</script>
+
+</body>
+
+</html>

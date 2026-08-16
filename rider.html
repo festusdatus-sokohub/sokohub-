@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="sw">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Rider Dashboard - SokoHub</title>
+
+<link
+    rel="stylesheet"
+    href="style.css"
+>
+
+</head>
+
+
+<body>
+
+
+<div class="home">
+
+    <h1>🏍️ Rider Dashboard</h1>
+
+    <p>Karibu Rider</p>
+
+    <hr>
+
+
+    <!-- RIDER INFO -->
+
+    <h2>👤 Taarifa za Rider</h2>
+
+    <div id="riderInfo">
+
+        <p>
+            ⏳ Inapakia...
+        </p>
+
+    </div>
+
+
+    <hr>
+
+
+    <!-- ORDERS -->
+
+    <h2>📦 Oda za Delivery</h2>
+
+    <div id="riderOrders">
+
+        <p>
+            ⏳ Inasoma oda...
+        </p>
+
+    </div>
+
+
+    <br>
+
+
+    <button
+        onclick="location.href='home.html'"
+    >
+        🏠 Home
+    </button>
+
+
+    <button
+        onclick="location.href='customer.html'"
+    >
+        👤 Account
+    </button>
+
+
+    <button
+        onclick="logoutUser()"
+    >
+        🚪 Toka
+    </button>
+
+</div>
+
+
+
+<script type="module">
+
+
+// ==================================================
+// FIREBASE
+// ==================================================
+
+import {
+    auth,
+    db
+} from "./firebase.js";
+
+
+import {
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+
+import {
+    collection,
+    getDocs,
+    doc,
+    updateDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+
+// ==================================================
+// HTML
+// ==================================================
+
+const riderInfo =
+    document.getElementById("riderInfo");
+
+
+const riderOrders =
+    document.getElementById("riderOrders");
+
+
+// ==================================================
+// CURRENT RIDER
+// ==================================================
+
+let currentRider = null;
+
+
+// ==================================================
+// GPS WATCHERS
+// ==================================================
+
+const gpsWatchers = {};
+
+
+// ==================================================
+// LOGIN CHECK
+// ==================================================
+
+onAuthStateChanged(
+    auth,
+    async (user) => {
+
+        if (!user) {
+
+            riderInfo.innerHTML = `
+
+                <div class="product">
+
+                    <h3>
+                        ⚠️ Tafadhali Login
+                    </h3>
+
+                    <button
+                        onclick="
+                            location.href='login.html'
+                        "
+                    >
+                        🔐 Login
+                    </button>
+
+                </div>
+
+            `;
+
+            riderOrders.innerHTML = "";
+
+            return;
+        }
+
+
+        currentRider = user;
+
+
+        console.log(
+            "🏍️ RIDER UID:",
+            user.uid
+        );
+
+
+        riderInfo.innerHTML = `
+
+            <div class="product">
+
+                <p>
+                    🟢
+                    <strong>
+                        Rider ame-login
+                    </strong>
+                </p>
+
+                <p>
+                    Rider UID:
+                </p>
+
+                <p
+                    style="
+                        font-size:12px;
+                        word-break:break-all;
+                    "
+                >
+                    ${user.uid}
+                </p>
+
+                ${
+                    user.email
+                    ?
+                    `<p>📧 ${user.email}</p>`
+                    :
+                    ""
+                }
+
+            </div>
+
+        `;
+
+
+        await loadRiderOrders(
+            user.uid
+        );
+
+    }
+
+);
+
+
+// ==================================================
+// LOAD ORDERS
+// ==================================================
+
+async function loadRiderOrders(
+    riderId
+) {
+
+    riderOrders.innerHTML = `
+
+        <div class="product">
+
+            <p>
+                ⏳ Inasoma orders...
+            </p>
+
+        </div>
+
+    `;
+
+
+    try {
+
+        const snapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "orders"
+                )
+            );
+
+
+        riderOrders.innerHTML = "";
+
+
+        let count = 0;
+
+
+        snapshot.forEach(
+            (orderDoc) => {
+
+                const order =
+                    orderDoc.data();
+
+
+                const orderId =
+                    orderDoc.id;
+
+
+                const status =
+                    order.status ||
+                    "pending";
+
+
+                const assignedRider =
+                    order.riderId ||
+                    "";
+
+
+                // ==================================
+                // SHOW CONFIRMED ORDERS
+                // OR RIDER'S OWN ORDERS
+                // ==================================
+
+                const available =
+                    status === "confirmed"
+                    &&
+                    !assignedRider;
+
+
+                const myOrder =
+                    assignedRider === riderId
+                    &&
+                    (
+                        status === "picked_up"
+                        ||
+                        status === "on_the_way"
+                    );
+
+
+                if (
+                    !available &&
+                    !myOrder
+                ) {
+
+                    return;
+
+                }
+
+
+                count++;
+
+
+                // ==================================
+                // ITEMS
+                // ==================================
+
+                const items =
+                    order.items || [];
+
+
+                let itemsHTML = "";
+
+
+                items.forEach(
+                    (item) => {
+
+                        const price =
+                            Number(
+                                item.price || 0
+                            );
+
+
+                        const quantity =
+                            Number(
+                                item.quantity || 1
+                            );
+
+
+                        const subtotal =
+                            price *
+                            quantity;
+
+
+                        itemsHTML += `
+
+                            <div
+                                style="
+                                    border:1px solid #ddd;
+                                    padding:10px;
+                                    margin:8px 0;
+                                    border-radius:8px;
+                                "
+                            >
+
+                                <p>
+                                    🛒
+                                    <strong>
+                                        ${
+                                            item.name ||
+                                            "Bidhaa"
+                                        }
+                                    </strong>
+                                </p>
+
+                                <p>
+                                    💰 Bei:
+                                    TZS
+                                    ${price.toLocaleString()}
+                                </p>
+
+                                <p>
+                                    📦 Quantity:
+                                    ${quantity}
+                                </p>
+
+                                <p>
+                                    💰 Subtotal:
+                                    <strong>
+                                        TZS
+                                        ${subtotal.toLocaleString()}
+                                    </strong>
+                                </p>
+
+                            </div>
+
+                        `;
+
+                    }
+                );
+
+
+                // ==================================
+                // STATUS
+                // ==================================
+
+                let statusHTML = "";
+
+
+                if (
+                    status === "confirmed"
+                ) {
+
+                    statusHTML = `
+
+                        <p>
+                            🟢
+                            <strong>
+                                Oda Imethibitishwa
+                            </strong>
+                        </p>
+
+                    `;
+
+                }
+
+
+                else if (
+                    status === "picked_up"
+                ) {
+
+                    statusHTML = `
+
+                        <p>
+                            🏍️
+                            <strong>
+                                Oda Imechukuliwa
+                            </strong>
+                        </p>
+
+                    `;
+
+                }
+
+
+                else if (
+                    status === "on_the_way"
+                ) {
+
+                    statusHTML = `
+
+                        <p>
+                            🚴
+                            <strong>
+                                Delivery Iko Njiani
+                            </strong>
+                        </p>
+
+                    `;
+
+                }
+
+
+                // ==================================
+                // BUTTON
+                // ==================================
+
+                let buttonHTML = "";
+
+
+                if (
+                    status === "confirmed"
+                    &&
+                    !assignedRider
+                ) {
+
+                    buttonHTML = `
+
+                        <button
+                            onclick="
+                                pickupOrder(
+                                    '${orderId}'
+                                )
+                            "
+                        >
+                            🏍️ Chukua Oda
+                        </button>
+
+                    `;
+
+                }
+
+
+                else if (
+                    status === "picked_up"
+                    &&
+                    assignedRider === riderId
+                ) {
+
+                    buttonHTML = `
+
+                        <button
+                            onclick="
+                                startDelivery(
+                                    '${orderId}'
+                                )
+                            "
+                        >
+                            🚴 Anza Delivery
+                        </button>
+
+                    `;
+
+                }
+
+
+                else if (
+                    status === "on_the_way"
+                    &&
+                    assignedRider === riderId
+                ) {
+
+                    buttonHTML = `
+
+                        <button
+                            onclick="
+                                completeDelivery(
+                                    '${orderId}'
+                                )
+                            "
+                        >
+                            ✅ Delivered
+                        </button>
+
+                    `;
+
+                }
+
+
+                // ==================================
+                // CARD
+                // ==================================
+
+                const div =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                div.className =
+                    "product";
+
+
+                div.innerHTML = `
+
+                    <h3>
+                        📦 Oda #
+                        ${orderId.substring(0,8)}
+                    </h3>
+
+                    <p>
+                        Order ID:
+                        ${orderId}
+                    </p>
+
+                    <hr>
+
+                    <h3>
+                        🛒 Bidhaa
+                    </h3>
+
+                    ${itemsHTML}
+
+                    <hr>
+
+                    <h3>
+                        💰 Jumla:
+                        TZS
+                        ${Number(
+                            order.total || 0
+                        ).toLocaleString()}
+                    </h3>
+
+                    <hr>
+
+                    <h3>
+                        👤 Customer
+                    </h3>
+
+                    <p>
+                        📞
+                        ${
+                            order.phone ||
+                            "Haijawekwa"
+                        }
+                    </p>
+
+                    <hr>
+
+                    <h3>
+                        📍 Delivery
+                    </h3>
+
+                    <p>
+                        ${
+                            order.deliveryLocation ||
+                            "Haijawekwa"
+                        }
+                    </p>
+
+                    <hr>
+
+                    <h3>
+                        📦 Status
+                    </h3>
+
+                    ${statusHTML}
+
+                    <br>
+
+                    ${buttonHTML}
+
+                `;
+
+
+                riderOrders.appendChild(
+                    div
+                );
+
+            }
+        );
+
+
+        if (
+            count === 0
+        ) {
+
+            riderOrders.innerHTML = `
+
+                <div class="product">
+
+                    <h3>
+                        📭 Hakuna Oda
+                    </h3>
+
+                    <p>
+                        Hakuna oda tayari
+                        kwa delivery.
+                    </p>
+
+                </div>
+
+            `;
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            error
+        );
+
+
+        riderOrders.innerHTML = `
+
+            <div class="product">
+
+                <h3>
+                    ❌ Firebase Error
+                </h3>
+
+                <p>
+                    ${error.message}
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+// ==================================================
+// PICKUP ORDER
+// ==================================================
+
+window.pickupOrder =
+async function(orderId) {
+
+    if (!currentRider) {
+        return;
+    }
+
+
+    const confirmPickup =
+        confirm(
+            "🏍️ Unataka kuchukua oda hii?"
+        );
+
+
+    if (!confirmPickup) {
+        return;
+    }
+
+
+    try {
+
+        await updateDoc(
+
+            doc(
+                db,
+                "orders",
+                orderId
+            ),
+
+            {
+
+                riderId:
+                    currentRider.uid,
+
+                status:
+                    "picked_up",
+
+                riderAssignedAt:
+                    serverTimestamp()
+
+            }
+
+        );
+
+
+        alert(
+            "✅ Oda imechukuliwa!"
+        );
+
+
+        await loadRiderOrders(
+            currentRider.uid
+        );
+
+    }
+
+    catch (error) {
+
+        alert(
+            "❌ Error:\n" +
+            error.message
+        );
+
+    }
+
+};
+
+
+// ==================================================
+// START DELIVERY + GPS
+// ==================================================
+
+window.startDelivery =
+async function(orderId) {
+
+    if (!currentRider) {
+        return;
+    }
+
+
+    if (
+        !navigator.geolocation
+    ) {
+
+        alert(
+            "❌ Simu yako haisupport GPS."
+        );
+
+        return;
+    }
+
+
+    const confirmStart =
+        confirm(
+
+            "🚴 Anza delivery?\n\n" +
+            "Ruhusu GPS ili customer aweze kufuatilia rider."
+
+        );
+
+
+    if (!confirmStart) {
+        return;
+    }
+// ==============================================
+// GET GPS LOCATION
+// ==============================================
+
+navigator.geolocation.getCurrentPosition(
+
+    async (position) => {
+
+        const latitude =
+            position.coords.latitude;
+
+        const longitude =
+            position.coords.longitude;
+
+        const accuracy =
+            position.coords.accuracy;
+
+
+        console.log(
+            "📍 GPS LOCATION:",
+            latitude,
+            longitude
+        );
+
+
+        try {
+
+            // ==================================
+            // UPDATE ORDER
+            // ==================================
+
+            await updateDoc(
+
+                doc(
+                    db,
+                    "orders",
+                    orderId
+                ),
+
+                {
+
+                    status:
+                        "on_the_way",
+
+                    riderId:
+                        currentRider.uid,
+
+                    riderLocation: {
+
+                        latitude:
+                            latitude,
+
+                        longitude:
+                            longitude,
+
+                        accuracy:
+                            accuracy
+
+                    },
+
+                    locationUpdatedAt:
+                        serverTimestamp()
+
+                }
+
+            );
+
+
+            console.log(
+                "✅ ORDER UPDATED:",
+                orderId
+            );
+
+
+            console.log(
+                "✅ STATUS: on_the_way"
+            );
+
+
+            alert(
+                "🚴 Delivery imeanza!\n\n" +
+                "📍 GPS imewashwa."
+            );
+
+
+            // ==================================
+            // START LIVE GPS
+            // ==================================
+
+            startLiveGPS(
+                orderId
+            );
+
+
+            // ==================================
+            // RELOAD ORDERS
+            // ==================================
+
+            await loadRiderOrders(
+                currentRider.uid
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "❌ FIREBASE ERROR:",
+                error
+            );
+
+
+            alert(
+                "❌ Firebase Error:\n\n" +
+                error.code +
+                "\n\n" +
+                error.message
+            );
+
+        }
+
+    },
+
+
+    (error) => {
+
+        console.error(
+            "❌ GPS ERROR:",
+            error
+        );
+
+
+        if (
+            error.code === 1
+        ) {
+
+            alert(
+                "📍 GPS imekataliwa.\n\n" +
+                "Ruhusu Location kwenye simu."
+            );
+
+        }
+
+        else if (
+            error.code === 2
+        ) {
+
+            alert(
+                "📍 Location haipatikani."
+            );
+
+        }
+
+        else if (
+            error.code === 3
+        ) {
+
+            alert(
+                "⏳ GPS imechukua muda mrefu.\n\n" +
+                "Jaribu tena."
+            );
+
+        }
+
+        else {
+
+            alert(
+                "❌ Tatizo la GPS."
+            );
+
+        }
+
+    },
+
+
+    {
+
+        enableHighAccuracy:
+            true,
+
+        timeout:
+            15000,
+
+        maximumAge:
+            0
+
+    }
+
+);
+
+    // ==============================================
+    // GET FIRST LOCATION
+    // ==============================================
+
+    navigator.geolocation.getCurrentPosition(
+
+        async (position) => {
+
+            const latitude =
+                position.coords.latitude;
+
+
+            const longitude =
+                position.coords.longitude;
+
+
+            const accuracy =
+                position.coords.accuracy;
+
+
+            console.log(
+                "📍 GPS:",
+                latitude,
+                longitude
+            );
+
+
+            try {
+
+                await updateDoc(
+
+                    doc(
+                        db,
+                        "orders",
+                        orderId
+                    ),
+
+                    {
+
+                        status:
+                            "on_the_way",
+
+                        riderId:
+                            currentRider.uid,
+
+                        riderLocation: {
+
+                            latitude:
+                                latitude,
+
+                            longitude:
+                                longitude,
+
+                            accuracy:
+                                accuracy
+
+                        },
+
+                        locationUpdatedAt:
+                            serverTimestamp()
+
+                    }
+
+                );
+
+
+                alert(
+                    "🚴 Delivery imeanza!\n\n" +
+                    "📍 GPS imewashwa."
+                );
+
+
+                // ==================================
+                // START LIVE GPS
+                // ==================================
+
+                startLiveGPS(
+                    orderId
+                );
+
+
+                await loadRiderOrders(
+                    currentRider.uid
+                );
+
+            }
+
+            catch (error) {
+
+                alert(
+                    "❌ Firebase Error:\n" +
+                    error.message
+                );
+
+            }
+
+        },
+
+
+        (error) => {
+
+            console.error(
+                "GPS ERROR:",
+                error
+            );
+
+
+            if (
+                error.code === 1
+            ) {
+
+                alert(
+                    "📍 Ruhusu GPS/Location kwenye simu."
+                );
+
+            }
+
+            else if (
+                error.code === 2
+            ) {
+
+                alert(
+                    "📍 Location haipatikani."
+                );
+
+            }
+
+            else {
+
+                alert(
+                    "⏳ GPS imechukua muda mrefu."
+                );
+
+            }
+
+        },
+
+
+        {
+
+            enableHighAccuracy:
+                true,
+
+            timeout:
+                15000,
+
+            maximumAge:
+                0
+
+        }
+
+    );
+
+};
+
+
+// ==================================================
+// LIVE GPS
+// ==================================================
+
+function startLiveGPS(
+    orderId
+) {
+
+    // Stop previous watcher
+
+    if (
+        gpsWatchers[orderId]
+    ) {
+
+        navigator.geolocation.clearWatch(
+            gpsWatchers[orderId]
+        );
+
+    }
+
+
+    gpsWatchers[orderId] =
+        navigator.geolocation.watchPosition(
+
+            async (position) => {
+
+                const latitude =
+                    position.coords.latitude;
+
+
+                const longitude =
+                    position.coords.longitude;
+
+
+                const accuracy =
+                    position.coords.accuracy;
+
+
+                console.log(
+                    "📍 LIVE:",
+                    latitude,
+                    longitude
+                );
+
+
+                try {
+
+                    await updateDoc(
+
+                        doc(
+                            db,
+                            "orders",
+                            orderId
+                        ),
+
+                        {
+
+                            riderLocation: {
+
+                                latitude:
+                                    latitude,
+
+                                longitude:
+                                    longitude,
+
+                                accuracy:
+                                    accuracy
+
+                            },
+
+                            locationUpdatedAt:
+                                serverTimestamp()
+
+                        }
+
+                    );
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "GPS FIRESTORE ERROR:",
+                        error
+                    );
+
+                }
+
+            },
+
+
+            (error) => {
+
+                console.error(
+                    "LIVE GPS ERROR:",
+                    error
+                );
+
+            },
+
+
+            {
+
+                enableHighAccuracy:
+                    true,
+
+                timeout:
+                    15000,
+
+                maximumAge:
+                    5000
+
+            }
+
+        );
+
+}
+
+
+// ==================================================
+// COMPLETE DELIVERY
+// ==================================================
+
+window.completeDelivery =
+async function(orderId) {
+
+    if (!currentRider) {
+        return;
+    }
+
+
+    const confirmDelivery =
+        confirm(
+
+            "✅ Umefikisha oda kwa customer?"
+
+        );
+
+
+    if (!confirmDelivery) {
+        return;
+    }
+
+
+    // ==============================================
+    // STOP GPS
+    // ==============================================
+
+    if (
+        gpsWatchers[orderId]
+    ) {
+
+        navigator.geolocation.clearWatch(
+            gpsWatchers[orderId]
+        );
+
+
+        delete gpsWatchers[orderId];
+
+    }
+
+
+    try {
+
+        await updateDoc(
+
+            doc(
+                db,
+                "orders",
+                orderId
+            ),
+
+            {
+
+                status:
+                    "delivered",
+
+                deliveredAt:
+                    serverTimestamp()
+
+            }
+
+        );
+
+
+        alert(
+            "✅ Oda imewasilishwa!"
+        );
+
+
+        await loadRiderOrders(
+            currentRider.uid
+        );
+
+    }
+
+    catch (error) {
+
+        alert(
+            "❌ Error:\n" +
+            error.message
+        );
+
+    }
+
+};
+
+
+// ==================================================
+// LOGOUT
+// ==================================================
+
+window.logoutUser =
+async function() {
+
+    try {
+
+        await signOut(
+            auth
+        );
+
+
+        location.href =
+            "login.html";
+
+    }
+
+    catch (error) {
+
+        alert(
+            error.message
+        );
+
+    }
+
+};
+
+
+</script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="sw">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>SokoHub - Customer</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<div class="home">
+
+
+    <!-- =========================================
+         HEADER
+    ========================================== -->
+
+    <h1>🛒 SokoHub</h1>
+
+    <p>
+        Karibu,
+        <strong id="customerName">
+            Inapakia...
+        </strong>
+    </p>
+
+    <hr>
+
+
+    <!-- =========================================
+         CUSTOMER PROFILE
+    ========================================== -->
+
+    <div class="product">
+
+        <h2>👤 Taarifa Zangu</h2>
+
+        <p>
+            Jina:
+            <strong id="profileName">
+                Inapakia...
+            </strong>
+        </p>
+
+        <p>
+            Simu:
+            <strong id="profilePhone">
+                Inapakia...
+            </strong>
+        </p>
+
+        <p>
+            Email:
+            <strong id="profileEmail">
+                Inapakia...
+            </strong>
+        </p>
+
+        <p>
+            Akaunti:
+            <strong>
+                Customer
+            </strong>
+        </p>
+
+    </div>
+
+
+    <!-- =========================================
+         SHOPPING
+    ========================================== -->
+
+    <div class="product">
+
+        <h2>🛍️ Nunua Bidhaa</h2>
+
+        <p>
+            Tafuta bidhaa kutoka kwa wauzaji
+            mbalimbali kwenye SokoHub.
+        </p>
+
+
+        <button
+            onclick="location.href='home.html'"
+        >
+
+            🛍️ Angalia Bidhaa
+
+        </button>
+
+    </div>
+
+
+    <!-- =========================================
+         CART
+    ========================================== -->
+
+    <div class="product">
+
+        <h2>🛒 Kikapu Changu</h2>
+
+        <p id="cartSummary">
+            Inakagua cart...
+        </p>
+
+
+        <button
+            onclick="location.href='cart.html'"
+        >
+
+            🛒 Fungua Cart
+
+        </button>
+
+    </div>
+
+
+    <!-- =========================================
+         ORDERS
+    ========================================== -->
+
+    <div class="product">
+
+        <h2>📦 Oda Zangu</h2>
+
+        <p>
+            Angalia oda ulizoagiza na
+            hali ya delivery.
+        </p>
+
+
+        <button
+            onclick="location.href='orders.html'"
+        >
+
+            📦 Angalia Oda Zangu
+
+        </button>
+
+    </div>
+
+
+    <!-- =========================================
+         TRACKING
+    ========================================== -->
+
+    <div class="product">
+
+        <h2>📍 Fuatilia Delivery</h2>
+
+        <p>
+            Fuatilia maendeleo ya oda yako
+            kutoka kwa seller mpaka rider.
+        </p>
+
+
+        <button
+            onclick="location.href='tracking.html'"
+        >
+
+            📍 Tracking
+
+        </button>
+
+    </div>
+
+
+    <!-- =========================================
+         QUICK MENU
+    ========================================== -->
+
+    <div class="product">
+
+        <h2>⚡ Menu</h2>
+
+
+        <button
+            onclick="location.href='home.html'"
+        >
+
+            🛍️ Shopping
+
+        </button>
+
+
+        <button
+            onclick="location.href='cart.html'"
+        >
+
+            🛒 Cart
+
+        </button>
+
+
+        <button
+            onclick="location.href='orders.html'"
+        >
+
+            📦 Oda
+
+        </button>
+
+
+        <button
+            onclick="location.href='tracking.html'"
+        >
+
+            📍 Tracking
+
+        </button>
+
+    </div>
+
+
+    <br>
+
+
+    <!-- =========================================
+         LOGOUT
+    ========================================== -->
+
+    <button
+        onclick="logoutUser()"
+    >
+
+        🚪 Toka kwenye Account
+
+    </button>
+
+
+</div>
+
+
+
+<script type="module">
+
+
+// ==================================================
+// FIREBASE
+// ==================================================
+
+import {
+    auth,
+    db
+} from "./firebase.js";
+
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+
+import {
+    doc,
+    getDoc
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+
+// ==================================================
+// HTML ELEMENTS
+// ==================================================
+
+const customerName =
+    document.getElementById(
+        "customerName"
+    );
+
+
+const profileName =
+    document.getElementById(
+        "profileName"
+    );
+
+
+const profilePhone =
+    document.getElementById(
+        "profilePhone"
+    );
+
+
+const profileEmail =
+    document.getElementById(
+        "profileEmail"
+    );
+
+
+const cartSummary =
+    document.getElementById(
+        "cartSummary"
+    );
+
+
+// ==================================================
+// DISPLAY CART SUMMARY
+// ==================================================
+
+function displayCartSummary() {
+
+    try {
+
+        const cart =
+            JSON.parse(
+                localStorage.getItem(
+                    "sokohubCart"
+                )
+            ) || [];
+
+
+        if (cart.length === 0) {
+
+            cartSummary.textContent =
+                "🛒 Cart yako iko tupu.";
+
+            return;
+
+        }
+
+
+        let totalItems = 0;
+
+        let totalAmount = 0;
+
+
+        cart.forEach((item) => {
+
+            const quantity =
+                Number(
+                    item.quantity || 1
+                );
+
+
+            const price =
+                Number(
+                    item.price || 0
+                );
+
+
+            totalItems +=
+                quantity;
+
+
+            totalAmount +=
+                price * quantity;
+
+        });
+
+
+        cartSummary.innerHTML =
+
+            "🛒 Bidhaa: <strong>" +
+            totalItems +
+            "</strong><br>" +
+
+            "💰 Jumla: <strong>TZS " +
+            totalAmount.toLocaleString() +
+            "</strong>";
+
+    } catch (error) {
+
+        console.error(
+            "CART ERROR:",
+            error
+        );
+
+
+        cartSummary.textContent =
+            "🛒 Cart haijasomeka.";
+
+    }
+
+}
+
+
+// ==================================================
+// AUTH STATE
+// ==================================================
+
+onAuthStateChanged(
+    auth,
+    async (user) => {
+
+
+        // ==========================================
+        // USER HAJA-LOGIN
+        // ==========================================
+
+        if (!user) {
+
+            window.location.href =
+                "login.html";
+
+            return;
+
+        }
+
+
+        try {
+
+
+            console.log(
+                "CUSTOMER UID:",
+                user.uid
+            );
+
+
+            // ======================================
+            // GET USER PROFILE
+            // ======================================
+
+            const userRef =
+                doc(
+                    db,
+                    "users",
+                    user.uid
+                );
+
+
+            const userSnap =
+                await getDoc(
+                    userRef
+                );
+
+
+            if (!userSnap.exists()) {
+
+                alert(
+                    "❌ Taarifa za account hazijapatikana."
+                );
+
+                return;
+
+            }
+
+
+            const userData =
+                userSnap.data();
+
+
+            console.log(
+                "CUSTOMER DATA:",
+                userData
+            );
+
+
+            // ======================================
+            // CHECK ROLE
+            // ======================================
+
+            if (
+                userData.role !==
+                "customer"
+            ) {
+
+                alert(
+                    "❌ Account hii si ya Customer."
+                );
+
+
+                return;
+
+            }
+
+
+            // ======================================
+            // DISPLAY NAME
+            // ======================================
+
+            const fullName =
+                userData.fullName ||
+                "Customer";
+
+
+            customerName.textContent =
+                fullName;
+
+
+            profileName.textContent =
+                fullName;
+
+
+            // ======================================
+            // DISPLAY PHONE
+            // ======================================
+
+            profilePhone.textContent =
+                userData.phone ||
+                "Haijawekwa";
+
+
+            // ======================================
+            // DISPLAY EMAIL
+            // ======================================
+
+            profileEmail.textContent =
+                userData.email ||
+                user.email ||
+                "Haijawekwa";
+
+
+            // ======================================
+            // CART
+            // ======================================
+
+            displayCartSummary();
+
+
+        } catch (error) {
+
+
+            console.error(
+                "CUSTOMER ERROR:",
+                error
+            );
+
+
+            alert(
+                "❌ Tatizo la kupakia Customer:\n\n" +
+                error.message
+            );
+
+        }
+
+    }
+);
+
+
+// ==================================================
+// LOGOUT
+// ==================================================
+
+window.logoutUser =
+async function() {
+
+
+    try {
+
+
+        await auth.signOut();
+
+
+        window.location.href =
+            "login.html";
+
+
+    } catch (error) {
+
+
+        console.error(
+            "LOGOUT ERROR:",
+            error
+        );
+
+
+        alert(
+            "❌ Imeshindikana kutoka:\n\n" +
+            error.message
+        );
+
+    }
+
+};
+
+
+// ==================================================
+// INITIAL CART DISPLAY
+// ==================================================
+
+displayCartSummary();
+
+
+</script>
+
+
+</body>
+
+</html>

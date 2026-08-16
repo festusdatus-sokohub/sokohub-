@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="sw">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Register - Sokohub</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="login-box">
+
+<h1>Sokohub</h1>
+
+<h2>Jisajili</h2>
+
+<input
+  type="text"
+  id="fullName"
+  placeholder="Jina kamili"
+>
+
+<input
+  type="tel"
+  id="phone"
+  placeholder="Namba ya simu"
+>
+
+<input
+  type="email"
+  id="email"
+  placeholder="Email"
+>
+
+<input
+  type="password"
+  id="password"
+  placeholder="Password"
+>
+
+<select id="role">
+
+  <option value="">Chagua aina ya mtumiaji</option>
+
+  <option value="customer">Mteja</option>
+
+  <option value="farmer">Mkulima</option>
+
+  <option value="supplier">Supplier</option>
+
+  <option value="retailer">Retailer</option>
+
+  <option value="rider">Delivery Rider</option>
+
+</select>
+
+<button onclick="registerUser()">
+  Jisajili
+</button>
+
+<p>
+  Tayari una account?
+  <a href="login.html">Ingia</a>
+</p>
+
+</div>
+
+<script type="module" src="auth.js"></script>
+
+</body>
+
+</html>

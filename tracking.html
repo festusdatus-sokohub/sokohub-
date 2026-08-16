@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="sw">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Fuatilia Oda - SokoHub</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="home">
+
+    <h1>🚚 Fuatilia Oda</h1>
+
+    <div id="trackingBox">
+        🔄 Inatafuta taarifa za oda...
+    </div>
+
+    <br>
+
+    <button onclick="loadTracking()">
+        🔄 Refresh
+    </button>
+
+    <br><br>
+
+    <button onclick="window.location.href='customer.html'">
+        🛒 Rudi Customer Dashboard
+    </button>
+
+</div>
+
+
+<script type="module">
+
+import { db, auth } from "./firebase.js";
+
+import {
+    collection,
+    query,
+    where,
+    getDocs,
+    orderBy
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+
+// ===============================
+// LOAD CUSTOMER ORDERS
+// ===============================
+
+window.loadTracking = async function () {
+
+    const box = document.getElementById("trackingBox");
+
+    box.innerHTML = "🔄 Inatafuta oda...";
+
+    try {
+
+        const user = auth.currentUser;
+
+        if (!user) {
+
+            box.innerHTML = `
+                <h3>🔐 Hujaingia</h3>
+                <p>Tafadhali login kwanza.</p>
+
+                <button onclick="window.location.href='login.html'">
+                    Ingia
+                </button>
+            `;
+
+            return;
+        }
+
+
+        // Tafuta oda za customer huyu
+        const q = query(
+            collection(db, "orders"),
+            where("customerId", "==", user.uid)
+        );
+
+
+        const snapshot = await getDocs(q);
+
+
+        if (snapshot.empty) {
+
+            box.innerHTML = `
+                <h3>📦 Hakuna Oda</h3>
+
+                <p>
+                    Hujawa na oda yoyote.
+                </p>
+            `;
+
+            return;
+        }
+
+
+        box.innerHTML = "";
+
+
+        snapshot.forEach((docSnap) => {
+
+            const order = docSnap.data();
+
+            const orderId = docSnap.id;
+
+
+            box.innerHTML += `
+
+                <div class="product">
+
+                    <h2>
+                        📦 Oda #${orderId.substring(0, 8)}
+                    </h2>
+
+
+                    <p>
+                        💰 Jumla:
+                        <strong>
+                            TZS ${Number(order.total || 0).toLocaleString()}
+                        </strong>
+                    </p>
+
+
+                    <p>
+                        📍 Delivery:
+                        ${order.location || "Haijawekwa"}
+                    </p>
+
+
+                    <p>
+                        📞 Simu:
+                        ${order.phone || "Haijawekwa"}
+                    </p>
+
+
+                    <p>
+                        🚴 Rider:
+                        ${order.riderId ? "Amepewa Rider" : "Bado hajawekwa"}
+                    </p>
+
+
+                    <h3>
+                        Status:
+                        ${getStatusText(order.status)}
+                    </h3>
+
+
+                    <hr>
+
+                    <p>🟡 Oda imepokelewa</p>
+                    <p>🟠 Oda inaandaliwa</p>
+                    <p>🔵 Rider anaileta</p>
+                    <p>🟢 Oda imewasili</p>
+
+                </div>
+
+                <br>
+
+            `;
+
+        });
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        box.innerHTML = `
+            <h3>❌ Imeshindikana</h3>
+
+            <p>
+                ${error.message}
+            </p>
+        `;
+
+    }
+
+};
+
+
+// ===============================
+// STATUS
+// ===============================
+
+function getStatusText(status) {
+
+    if (status === "pending") {
+        return "🟡 Inasubiri";
+    }
+
+    if (status === "accepted") {
+        return "🟠 Imekubaliwa";
+    }
+
+    if (status === "picked_up") {
+        return "🔵 Oda imechukuliwa na Rider";
+    }
+
+    if (status === "in_delivery") {
+        return "🚴 Oda iko njiani";
+    }
+
+    if (status === "delivered") {
+        return "🟢 Imewasilishwa";
+    }
+
+    return status || "Haijulikani";
+
+}
+
+
+// Anza moja kwa moja
+setTimeout(() => {
+
+    loadTracking();
+
+}, 1000);
+
+</script>
+
+</body>
+
+</html>

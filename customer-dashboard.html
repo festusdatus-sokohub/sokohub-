@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Customer Dashboard - Digital Market</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f6fa;
+            color: #222;
+        }
+
+        /* HEADER */
+        .header {
+            background: #0b7a3b;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 18px;
+            font-size: 20px;
+        }
+
+        /* WELCOME */
+        .welcome {
+            padding: 25px 20px 15px;
+        }
+
+        .welcome h2 {
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            color: #666;
+        }
+
+        /* SEARCH */
+        .search-box {
+            padding: 10px 20px 20px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            font-size: 15px;
+            outline: none;
+        }
+
+        /* CARDS */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 0 20px 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 18px 10px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .card-icon {
+            font-size: 25px;
+            margin-bottom: 8px;
+        }
+
+        .card h3 {
+            font-size: 17px;
+            margin-bottom: 5px;
+        }
+
+        .card p {
+            color: #777;
+            font-size: 13px;
+        }
+
+        /* SECTION */
+        .section {
+            padding: 10px 20px;
+        }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .section-title h3 {
+            font-size: 18px;
+        }
+
+        .section-title a {
+            color: #0b7a3b;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* PRODUCTS */
+        .products {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .product {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .product-image {
+            height: 130px;
+            background: #e8e8e8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 45px;
+        }
+
+        .product-info {
+            padding: 12px;
+        }
+
+        .product-info h4 {
+            margin-bottom: 7px;
+        }
+
+        .price {
+            color: #0b7a3b;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .cart-btn {
+            width: 100%;
+            padding: 9px;
+            border: none;
+            border-radius: 7px;
+            background: #0b7a3b;
+            color: white;
+            cursor: pointer;
+        }
+
+        .cart-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* BOTTOM NAVIGATION */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-top: 1px solid #ddd;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            padding: 8px 0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .nav-item span {
+            display: block;
+            font-size: 21px;
+            margin-bottom: 3px;
+        }
+
+        .nav-item.active {
+            color: #0b7a3b;
+            font-weight: bold;
+        }
+
+        /* DESKTOP */
+        @media (min-width: 768px) {
+
+            .products {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .cards {
+                max-width: 900px;
+                margin: auto;
+            }
+
+            .welcome,
+            .search-box,
+            .section {
+                max-width: 1100px;
+                margin: auto;
+            }
+
+            .bottom-nav {
+                width: 400px;
+                left: 50%;
+                transform: translateX(-50%);
+                border-radius: 15px 15px 0 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="logo">🛒 Digital Market</div>
+
+        <div class="header-icons">
+            <span>🔔</span>
+            <span>👤</span>
+        </div>
+    </header>
+
+
+    <!-- WELCOME -->
+    <section class="welcome">
+        <h2>Habari, Karibu! 👋</h2>
+        <p>Unatafuta nini leo?</p>
+    </section>
+
+
+    <!-- SEARCH -->
+    <div class="search-box">
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="🔎 Tafuta bidhaa..."
+        >
+    </div>
+
+
+    <!-- SUMMARY CARDS -->
+    <section class="cards">
+
+        <div class="card">
+            <div class="card-icon">🛍️</div>
+            <h3 id="productCount">0</h3>
+            <p>Bidhaa</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">📦</div>
+            <h3 id="orderCount">0</h3>
+            <p>Orders</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">❤️</div>
+            <h3 id="favoriteCount">0</h3>
+            <p>Favorites</p>
+        </div>
+
+    </section>
+
+
+    <!-- PRODUCTS -->
+    <section class="section">
+
+        <div class="section-title">
+            <h3>🔥 Bidhaa Maarufu</h3>
+            <a href="#">Tazama zote</a>
+        </div>
+
+        <div class="products">
+
+            <div class="product">
+                <div class="product-image">🍅</div>
+
+                <div class="product-info">
+                    <h4>Nyanya</h4>
+                    <div class="price">TSh 3,000</div>
+
+                    <button class="cart-btn">
+                        🛒 Add to Cart
+                    </button>
+                </div>
+            </div>
+
+
+            <div class="product">
+                <div class="product-image">🥔</div>
+
+                <div class="product-info">
+                    <h4>Viazi</h4>
+                    <div class="price">TSh 2,500</div>
+
+                    <button class="cart-btn">
+                        🛒 Add to Cart
+                    </button>
+                </div>
+            </div>
+
+
+            <div class="product">
+                <div class="product-image">🌽</div>
+
+                <div class="product-info">
+                    <h4>Mahindi</h4>
+                    <div class="price">TSh 1,500</div>
+
+                    <button class="cart-btn">
+                        🛒 Add to Cart
+                    </button>
+                </div>
+            </div>
+
+
+            <div class="product">
+                <div class="product-image">🍌</div>
+
+                <div class="product-info">
+                    <h4>Ndizi</h4>
+                    <div class="price">TSh 2,000</div>
+
+                    <button class="cart-btn">
+                        🛒 Add to Cart
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+
+        <div class="nav-item active">
+            <span>🏠</span>
+            Home
+        </div>
+
+        <div class="nav-item">
+            <span>🔎</span>
+            Search
+        </div>
+
+        <div class="nav-item">
+            <span>🛒</span>
+            Cart
+        </div>
+
+        <div class="nav-item">
+            <span>👤</span>
+            Account
+        </div>
+
+    </nav>
+
+
+    <script>
+
+        // Search
+        const searchInput = document.getElementById("searchInput");
+
+        searchInput.addEventListener("input", function () {
+
+            const search = this.value.toLowerCase();
+
+            const products = document.querySelectorAll(".product");
+
+            products.forEach(function(product) {
+
+                const name = product
+                    .querySelector("h4")
+                    .textContent
+                    .toLowerCase();
+
+                if (name.includes(search)) {
+                    product.style.display = "block";
+                } else {
+                    product.style.display = "none";
+                }
+
+            });
+
+        });
+
+    </script>
+
+</body>
+</html>

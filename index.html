@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="sw">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Add Product - SokoLink</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<div class="login-box">
+
+<h1>SokoLink</h1>
+
+<h2>Ongeza Bidhaa</h2>
+
+
+<input type="text" placeholder="Jina la bidhaa">
+
+
+<input type="number" placeholder="Bei (TZS)">
+
+
+<input type="number" placeholder="Kiasi kilichopo">
+
+
+<select>
+
+<option>Aina ya bidhaa</option>
+
+<option>Mboga</option>
+
+<option>Matunda</option>
+
+<option>Chakula</option>
+
+<option>Vifaa</option>
+
+</select>
+
+
+<input type="text" placeholder="Mahali bidhaa ilipo">
+
+
+<button>
+<button onclick="saveProduct()">
+Hifadhi Bidhaa
+</button>
+</button>
+
+
+</div>
+
+<script src="script.js"></script>
+</body>
+
+</html>
+Jina: Nyanya
+Bei: 2000
+Kiasi: 50
+Mahali: Temeke
+Mchele
+Bei: 3500
+Kiasi: 100
+Mahali: Dar es Salaam
+...
+
+<script type="module" src="firebase.js"></script>
+<script src="script.js"></script>
+<script type="module">
+import { auth, db } from "./firebase.js";
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+import {
+    doc,
+    getDoc
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+onAuthStateChanged(auth, async (user) => {
+
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    const userDoc = await getDoc(
+        doc(db, "users", user.uid)
+    );
+
+    if (!userDoc.exists()) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    const userData = userDoc.data();
+
+    if (userData.role === "customer") {
+        window.location.href = "customer.html";
+
+    } else if (userData.role === "farmer") {
+        window.location.href = "farmer.html";
+
+    } else if (
+        userData.role === "supplier" ||
+        userData.role === "retailer"
+    ) {
+        window.location.href = "seller.html";
+
+    } else if (userData.role === "rider") {
+        window.location.href = "rider.html";
+    }
+
+});
+</script>
+
+</body>
+</html>

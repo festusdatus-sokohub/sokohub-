@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="sw">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Seller Dashboard - SokoHub</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<div class="home">
+
+    <!-- ==================================================
+         HEADER
+    ================================================== -->
+
+    <h1>🏪 Seller Dashboard</h1>
+
+    <p>
+        Karibu Seller
+    </p>
+
+
+    <hr>
+
+
+    <!-- ==================================================
+         SELLER INFORMATION
+    ================================================== -->
+
+    <h2>👤 Taarifa za Seller</h2>
+
+    <div id="sellerInfo">
+
+        <p>
+            ⏳ Inapakia taarifa...
+        </p>
+
+    </div>
+
+
+    <hr>
+
+
+    <!-- ==================================================
+         ORDERS
+    ================================================== -->
+
+    <h2>📦 Oda za Wateja</h2>
+
+    <div id="sellerOrders">
+
+        <p>
+            ⏳ Inasoma oda...
+        </p>
+
+    </div>
+
+
+    <br>
+
+
+    <!-- ==================================================
+         NAVIGATION
+    ================================================== -->
+
+    <button
+        onclick="location.href='add-product.html'"
+    >
+
+        ➕ Ongeza Bidhaa
+
+    </button>
+
+
+    <button
+        onclick="location.href='home.html'"
+    >
+
+        🛒 Home
+
+    </button>
+
+
+    <button
+        onclick="location.href='customer.html'"
+    >
+
+        👤 Account
+
+    </button>
+
+
+    <button
+        onclick="logoutUser()"
+    >
+
+        🚪 Toka
+
+    </button>
+
+
+</div>
+
+
+
+<script type="module">
+
+
+// ==================================================
+// FIREBASE
+// ==================================================
+
+import {
+    auth,
+    db
+} from "./firebase.js";
+
+
+import {
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+
+import {
+    collection,
+    getDocs,
+    doc,
+    updateDoc
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+
+// ==================================================
+// HTML ELEMENTS
+// ==================================================
+
+const sellerInfo =
+    document.getElementById(
+        "sellerInfo"
+    );
+
+
+const sellerOrders =
+    document.getElementById(
+        "sellerOrders"
+    );
+
+
+// ==================================================
+// CURRENT SELLER
+// ==================================================
+
+let currentSeller = null;
+
+
+// ==================================================
+// FIREBASE TEST
+// ==================================================
+
+console.log(
+    "🔥 seller.html imeanza"
+);
+
+console.log(
+    "📦 Firestore:",
+    db
+);
+
+console.log(
+    "🔐 Auth:",
+    auth
+);
+
+
+// ==================================================
+// AUTH STATE
+// ==================================================
+
+onAuthStateChanged(
+    auth,
+    async (user) => {
+
+
+        console.log(
+            "👤 CURRENT USER:",
+            user
+        );
+
+
+        // ==========================================
+        // USER NOT LOGGED IN
+        // ==========================================
+
+        if (!user) {
+
+
+            sellerInfo.innerHTML = `
+
+                <div class="product">
+
+                    <h3>
+                        ⚠️ Tafadhali Login
+                    </h3>
+
+                    <p>
+                        Hujalogin kwenye akaunti yako.
+                    </p>
+
+
+                    <button
+                        onclick="
+                            location.href='login.html'
+                        "
+                    >
+
+                        🔐 Login
+
+                    </button>
+
+                </div>
+
+            `;
+
+
+            sellerOrders.innerHTML = "";
+
+
+            return;
+
+        }
+
+
+        // ==========================================
+        // SAVE CURRENT SELLER
+        // ==========================================
+
+        currentSeller = user;
+
+
+        console.log(
+            "SELLER UID:",
+            user.uid
+        );
+
+
+        // ==========================================
+        // SELLER INFORMATION
+        // ==========================================
+
+        sellerInfo.innerHTML = `
+
+            <div class="product">
+
+                <p>
+
+                    🟢
+                    <strong>
+                        Seller ame-login
+                    </strong>
+
+                </p>
+
+
+                <p>
+
+                    Seller UID:
+
+                </p>
+
+
+                <p
+                    style="
+                        font-size:12px;
+                        word-break:break-all;
+                    "
+                >
+
+                    ${user.uid}
+
+                </p>
+
+
+                ${
+                    user.email
+                    ?
+                    `
+                    <p>
+                        📧 ${user.email}
+                    </p>
+                    `
+                    :
+                    ""
+                }
+
+            </div>
+
+        `;
+
+
+        // ==========================================
+        // LOAD SELLER ORDERS
+        // ==========================================
+
+        await loadSellerOrders(
+            user.uid
+        );
+
+    }
+
+);
+
+
+// ==================================================
+// LOAD SELLER ORDERS
+// ==================================================
+
+async function loadSellerOrders(
+    sellerId
+) {
+
+
+    sellerOrders.innerHTML = `
+
+        <div class="product">
+
+            <p>
+                ⏳ Inaunganisha na
+                Firestore orders...
+            </p>
+
+        </div>
+
+    `;
+
+
+    try {
+
+
+        // ==========================================
+        // GET ORDERS COLLECTION
+        // ==========================================
+
+        const snapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "orders"
+                )
+            );
+
+
+        console.log(
+            "📦 JUMLA YA ORDERS:",
+            snapshot.size
+        );
+
+
+        // ==========================================
+        // CLEAR DISPLAY
+        // ==========================================
+
+        sellerOrders.innerHTML = "";
+
+
+        let sellerOrderCount = 0;
+
+
+        // ==========================================
+        // LOOP THROUGH ORDERS
+        // ==========================================
+
+        snapshot.forEach(
+            (orderDoc) => {
+
+
+                const order =
+                    orderDoc.data();
+
+
+                const orderId =
+                    orderDoc.id;
+
+
+                console.log(
+                    "ORDER:",
+                    orderId,
+                    order
+                );
+
+
+                // ==================================
+                // CHECK SELLER
+                // ==================================
+
+                let belongsToSeller =
+                    false;
+
+
+                // ----------------------------------
+                // OPTION 1
+                // Order-level sellerId
+                // ----------------------------------
+
+                if (
+                    order.sellerId ===
+                    sellerId
+                ) {
+
+                    belongsToSeller =
+                        true;
+
+                }
+
+
+                // ----------------------------------
+                // OPTION 2
+                // Item-level sellerId
+                // ----------------------------------
+
+                if (
+                    !belongsToSeller &&
+                    Array.isArray(
+                        order.items
+                    )
+                ) {
+
+
+                    belongsToSeller =
+                        order.items.some(
+                            (item) =>
+                                item.sellerId ===
+                                sellerId
+                        );
+
+                }
+
+
+                // ==================================
+                // NOT THIS SELLER
+                // ==================================
+
+                if (
+                    !belongsToSeller
+                ) {
+
+                    return;
+
+                }
+
+
+                sellerOrderCount++;
+
+
+                // ==================================
+                // ITEMS
+                // ==================================
+
+                const items =
+                    Array.isArray(
+                        order.items
+                    )
+                    ?
+                    order.items
+                    :
+                    [];
+
+
+                let itemsHTML = "";
+
+
+                items.forEach(
+                    (item) => {
+
+
+                        // --------------------------
+                        // If item belongs to another
+                        // seller, skip it
+                        // --------------------------
+
+                        if (
+                            item.sellerId &&
+                            item.sellerId !== sellerId
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        const name =
+                            item.name ||
+                            "Bidhaa";
+
+
+                        const price =
+                            Number(
+                                item.price || 0
+                            );
+
+
+                        const quantity =
+                            Number(
+                                item.quantity || 1
+                            );
+
+
+                        const subtotal =
+                            price *
+                            quantity;
+
+
+                        itemsHTML += `
+
+                            <div
+                                style="
+                                    border:1px solid #ddd;
+                                    padding:10px;
+                                    margin:8px 0;
+                                    border-radius:8px;
+                                "
+                            >
+
+                                <h4>
+
+                                    🛒
+                                    ${name}
+
+                                </h4>
+
+
+                                <p>
+
+                                    💰 Bei:
+
+                                    TZS
+                                    ${price.toLocaleString()}
+
+                                </p>
+
+
+                                <p>
+
+                                    📦 Quantity:
+
+                                    ${quantity}
+
+                                </p>
+
+
+                                <p>
+
+                                    💰 Subtotal:
+
+                                    <strong>
+
+                                        TZS
+                                        ${subtotal.toLocaleString()}
+
+                                    </strong>
+
+                                </p>
+
+
+                                ${
+                                    item.category
+                                    ?
+                                    `
+                                    <p>
+
+                                        🏷️ Category:
+
+                                        ${item.category}
+
+                                    </p>
+                                    `
+                                    :
+                                    ""
+                                }
+
+
+                                ${
+                                    item.location
+                                    ?
+                                    `
+                                    <p>
+
+                                        📍 Product Location:
+
+                                        ${item.location}
+
+                                    </p>
+                                    `
+                                    :
+                                    ""
+                                }
+
+                            </div>
+
+                        `;
+
+                    }
+
+                );
+
+
+                // ==================================
+                // STATUS
+                // ==================================
+
+                const status =
+                    order.status ||
+                    "pending";
+
+
+                let statusHTML = "";
+
+
+                switch (
+                    status
+                ) {
+
+
+                    case "pending":
+
+                        statusHTML = `
+
+                            <p>
+
+                                🟡
+
+                                <strong>
+                                    Oda Inasubiri
+                                    Uthibitisho
+                                </strong>
+
+                            </p>
+
+                        `;
+
+                        break;
+
+
+                    case "confirmed":
+
+                        statusHTML = `
+
+                            <p>
+
+                                🟢
+
+                                <strong>
+                                    Oda Imethibitishwa
+                                </strong>
+
+                            </p>
+
+
+                            <p>
+
+                                ⏳
+                                Inasubiri Rider
+
+                            </p>
+
+                        `;
+
+                        break;
+
+
+                    case "picked_up":
+
+                        statusHTML = `
+
+                            <p>
+
+                                🏍️
+
+                                <strong>
+                                    Rider Amechukua Oda
+                                </strong>
+
+                            </p>
+
+                        `;
+
+                        break;
+
+
+                    case "on_the_way":
+
+                        statusHTML = `
+
+                            <p>
+
+                                🚴
+
+                                <strong>
+                                    Oda Iko Njiani
+                                </strong>
+
+                            </p>
+
+                        `;
+
+                        break;
+
+
+                    case "delivered":
+
+                        statusHTML = `
+
+                            <p>
+
+                                ✅
+
+                                <strong>
+                                    Oda Imewasilishwa
+                                </strong>
+
+                            </p>
+
+                        `;
+
+                        break;
+
+
+                    default:
+
+                        statusHTML = `
+
+                            <p>
+
+                                ℹ️ Status:
+
+                                <strong>
+                                    ${status}
+                                </strong>
+
+                            </p>
+
+                        `;
+
+                }
+
+
+                // ==================================
+                // CONFIRM BUTTON
+                // ==================================
+
+                let confirmButton =
+                    "";
+
+
+                if (
+                    status ===
+                    "pending"
+                ) {
+
+
+                    confirmButton = `
+
+                        <button
+                            onclick="
+                                confirmOrder(
+                                    '${orderId}'
+                                )
+                            "
+                        >
+
+                            ✅ Confirm Order
+
+                        </button>
+
+                    `;
+
+                }
+
+
+                // ==================================
+                // RIDER
+                // ==================================
+
+                let riderHTML = "";
+
+
+                if (
+                    order.riderId
+                ) {
+
+
+                    riderHTML = `
+
+                        <p>
+
+                            🏍️ Rider ID:
+
+                            <span
+                                style="
+                                    font-size:12px;
+                                    word-break:break-all;
+                                "
+                            >
+
+                                ${order.riderId}
+
+                            </span>
+
+                        </p>
+
+                    `;
+
+                }
+
+                else {
+
+
+                    riderHTML = `
+
+                        <p>
+
+                            🏍️ Rider:
+
+                            <strong>
+                                Bado hajapangiwa
+                            </strong>
+
+                        </p>
+
+                    `;
+
+                }
+
+
+                // ==================================
+                // ORDER CARD
+                // ==================================
+
+                const div =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                div.className =
+                    "product";
+
+
+                div.innerHTML = `
+
+                    <h3>
+
+                        📦 Oda #
+
+                        ${orderId.substring(
+                            0,
+                            8
+                        )}
+
+                    </h3>
+
+
+                    <p
+                        style="
+                            font-size:12px;
+                            word-break:break-all;
+                        "
+                    >
+
+                        Order ID:
+
+                        ${orderId}
+
+                    </p>
+
+
+                    <hr>
+
+
+                    <h3>
+                        🛒 Bidhaa
+                    </h3>
+
+
+                    ${
+                        itemsHTML ||
+                        `
+                        <p>
+                            Hakuna bidhaa.
+                        </p>
+                        `
+                    }
+
+
+                    <hr>
+
+
+                    <h3>
+
+                        💰 Jumla:
+
+                        TZS
+
+                        ${Number(
+                            order.total || 0
+                        ).toLocaleString()}
+
+                    </h3>
+
+
+                    <hr>
+
+
+                    <h3>
+                        👤 Customer
+                    </h3>
+
+
+                    <p>
+
+                        Customer ID:
+
+                    </p>
+
+
+                    <p
+                        style="
+                            font-size:12px;
+                            word-break:break-all;
+                        "
+                    >
+
+                        ${
+                            order.customerId ||
+                            "Haijapatikana"
+                        }
+
+                    </p>
+
+
+                    <p>
+
+                        📞 Simu:
+
+                        ${
+                            order.phone ||
+                            "Haijawekwa"
+                        }
+
+                    </p>
+
+
+                    <hr>
+
+
+                    <h3>
+                        📍 Delivery
+                    </h3>
+
+
+                    <p>
+
+                        ${
+                            order.deliveryLocation ||
+                            "Haijawekwa"
+                        }
+
+                    </p>
+
+
+                    <hr>
+
+
+                    <h3>
+                        💳 Malipo
+                    </h3>
+
+
+                    <p>
+
+                        ${
+                            order.paymentMethod ||
+                            "Haijawekwa"
+                        }
+
+                    </p>
+
+
+                    <hr>
+
+
+                    <h3>
+                        📦 Status
+                    </h3>
+
+
+                    ${statusHTML}
+
+
+                    ${riderHTML}
+
+
+                    <br>
+
+
+                    ${confirmButton}
+
+                `;
+
+
+                sellerOrders.appendChild(
+                    div
+                );
+
+            }
+
+        );
+
+
+        // ==========================================
+        // NO ORDERS
+        // ==========================================
+
+        if (
+            sellerOrderCount === 0
+        ) {
+
+
+            sellerOrders.innerHTML = `
+
+                <div class="product">
+
+                    <h3>
+                        📭 Hakuna Oda
+                    </h3>
+
+
+                    <p>
+
+                        Hakuna oda inayohusiana
+                        na seller huyu.
+
+                    </p>
+
+
+                    <hr>
+
+
+                    <p
+                        style="
+                            font-size:12px;
+                            word-break:break-all;
+                        "
+                    >
+
+                        Seller UID:
+
+                        ${sellerId}
+
+                    </p>
+
+                </div>
+
+            `;
+
+        }
+
+
+    }
+
+    catch (
+        error
+    ) {
+
+
+        console.error(
+            "❌ FIRESTORE ERROR:",
+            error
+        );
+
+
+        sellerOrders.innerHTML = `
+
+            <div class="product">
+
+                <h3>
+                    ❌ Tatizo la Firebase
+                </h3>
+
+
+                <p>
+                    ${error.message}
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+// ==================================================
+// CONFIRM ORDER
+// ==================================================
+
+window.confirmOrder =
+async function(
+    orderId
+) {
+
+
+    if (
+        !currentSeller
+    ) {
+
+        alert(
+            "⚠️ Tafadhali login kwanza."
+        );
+
+        return;
+
+    }
+
+
+    const confirmed =
+        window.confirm(
+            "Una uhakika unataka ku-confirm oda hii?"
+        );
+
+
+    if (
+        !confirmed
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+
+        console.log(
+            "🔄 Confirming order:",
+            orderId
+        );
+
+
+        // ==========================================
+        // UPDATE FIRESTORE
+        // ==========================================
+
+        await updateDoc(
+
+            doc(
+                db,
+                "orders",
+                orderId
+            ),
+
+            {
+
+                status:
+                    "confirmed"
+
+            }
+
+        );
+
+
+        // ==========================================
+        // SUCCESS
+        // ==========================================
+
+        alert(
+            "✅ Oda ime-confirmiwa kikamilifu!"
+        );
+
+
+        // ==========================================
+        // RELOAD ORDERS
+        // ==========================================
+
+        await loadSellerOrders(
+            currentSeller.uid
+        );
+
+
+    }
+
+    catch (
+        error
+    ) {
+
+
+        console.error(
+            "❌ CONFIRM ERROR:",
+            error
+        );
+
+
+        alert(
+
+            "❌ Oda haija-confirmiwa.\n\n" +
+            error.message
+
+        );
+
+    }
+
+};
+
+
+// ==================================================
+// LOGOUT
+// ==================================================
+
+window.logoutUser =
+async function() {
+
+
+    try {
+
+
+        await signOut(
+            auth
+        );
+
+
+        alert(
+            "👋 Umetoka kwenye akaunti."
+        );
+
+
+        window.location.href =
+            "login.html";
+
+
+    }
+
+    catch (
+        error
+    ) {
+
+
+        console.error(
+            "❌ LOGOUT ERROR:",
+            error
+        );
+
+
+        alert(
+
+            "❌ Imeshindikana kutoka.\n\n" +
+            error.message
+
+        );
+
+    }
+
+};
+
+
+</script>
+
+
+</body>
+
+</html>

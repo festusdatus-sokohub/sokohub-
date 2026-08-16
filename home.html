@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="sw">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>SokoHub - Bidhaa</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<div class="home">
+
+
+    <!-- HEADER -->
+
+    <h1>🛍️ SokoHub</h1>
+
+    <p>
+        Karibu kwenye soko la SokoHub
+    </p>
+
+
+    <hr>
+
+
+    <!-- SEARCH -->
+
+    <input
+        type="text"
+        id="searchInput"
+        placeholder="🔎 Tafuta bidhaa..."
+    >
+
+
+    <br><br>
+
+
+    <!-- CATEGORY -->
+
+    <select id="categoryFilter">
+
+        <option value="all">
+            📦 Makundi yote
+        </option>
+
+    </select>
+
+
+    <br><br>
+
+
+    <!-- PRODUCTS -->
+
+    <h2>🛒 Bidhaa</h2>
+
+    <div id="productList">
+
+        <p>
+            Inapakia bidhaa... ⏳
+        </p>
+
+    </div>
+
+
+    <br>
+
+
+    <!-- CART -->
+
+    <button
+        onclick="location.href='cart.html'"
+    >
+
+        🛒 Fungua Cart
+
+    </button>
+
+
+    <button
+        onclick="location.href='customer.html'"
+    >
+
+        👤 Account
+
+    </button>
+
+
+    <button
+        onclick="location.href='orders.html'"
+    >
+
+        📦 Oda Zangu
+
+    </button>
+
+
+    <br><br>
+
+
+    <button
+        onclick="logoutUser()"
+    >
+
+        🚪 Toka
+
+    </button>
+
+
+</div>
+
+
+
+<script type="module">
+
+
+// ==================================================
+// FIREBASE
+// ==================================================
+
+import {
+    auth,
+    db
+} from "./firebase.js";
+
+
+import {
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+
+import {
+    collection,
+    getDocs
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+
+// ==================================================
+// ELEMENTS
+// ==================================================
+
+const productList =
+    document.getElementById(
+        "productList"
+    );
+
+
+const searchInput =
+    document.getElementById(
+        "searchInput"
+    );
+
+
+const categoryFilter =
+    document.getElementById(
+        "categoryFilter"
+    );
+
+
+// ==================================================
+// VARIABLES
+// ==================================================
+
+let allProducts = [];
+
+
+// ==================================================
+// CHECK LOGIN
+// ==================================================
+
+onAuthStateChanged(
+    auth,
+    async (user) => {
+
+        if (!user) {
+
+            window.location.href =
+                "login.html";
+
+            return;
+
+        }
+
+
+        console.log(
+            "Logged user:",
+            user.uid
+        );
+
+
+        await loadProducts();
+
+    }
+);
+
+
+// ==================================================
+// LOAD PRODUCTS
+// ==================================================
+
+async function loadProducts() {
+
+
+    productList.innerHTML = `
+
+        <p>
+            ⏳ Inapakia bidhaa...
+        </p>
+
+    `;
+
+
+    try {
+
+
+        const snapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "products"
+                )
+            );
+
+
+        allProducts = [];
+
+
+        snapshot.forEach(
+            (productDoc) => {
+
+
+                const data =
+                    productDoc.data();
+
+
+                allProducts.push({
+
+                    id:
+                        productDoc.id,
+
+                    ...data
+
+                });
+
+            }
+        );
+
+
+        console.log(
+            "Products:",
+            allProducts
+        );
+
+
+        if (
+            allProducts.length === 0
+        ) {
+
+            productList.innerHTML = `
+
+                <div class="product">
+
+                    <h3>
+                        📭 Hakuna bidhaa
+                    </h3>
+
+                    <p>
+                        Hakuna bidhaa zilizowekwa
+                        kwa sasa.
+                    </p>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        loadCategories();
+
+        displayProducts(
+            allProducts
+        );
+
+
+    } catch (error) {
+
+
+        console.error(
+            "PRODUCT ERROR:",
+            error
+        );
+
+
+        productList.innerHTML = `
+
+            <div class="product">
+
+                <h3>
+                    ❌ Bidhaa hazijapatikana
+                </h3>
+
+                <p>
+                    ${error.message}
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+// ==================================================
+// LOAD CATEGORIES
+// ==================================================
+
+function loadCategories() {
+
+
+    const categories =
+        new Set();
+
+
+    allProducts.forEach(
+        (product) => {
+
+
+            if (
+                product.category
+            ) {
+
+                categories.add(
+                    product.category
+                );
+
+            }
+
+        }
+    );
+
+
+    categoryFilter.innerHTML = `
+
+        <option value="all">
+            📦 Makundi yote
+        </option>
+
+    `;
+
+
+    categories.forEach(
+        (category) => {
+
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                category;
+
+
+            option.textContent =
+                category;
+
+
+            categoryFilter.appendChild(
+                option
+            );
+
+        }
+    );
+
+}
+
+
+// ==================================================
+// DISPLAY PRODUCTS
+// ==================================================
+
+function displayProducts(
+    products
+) {
+
+
+    productList.innerHTML = "";
+
+
+    if (
+        products.length === 0
+    ) {
+
+        productList.innerHTML = `
+
+            <p>
+                🔎 Hakuna bidhaa
+                inayolingana na utafutaji.
+            </p>
+
+        `;
+
+        return;
+
+    }
+
+
+    products.forEach(
+        (product) => {
+
+
+            const name =
+                product.name ||
+                "Bidhaa";
+
+
+            const price =
+                Number(
+                    product.price || 0
+                );
+
+
+            const quantity =
+                Number(
+                    product.quantity ||
+                    product.stock ||
+                    0
+                );
+
+
+            const category =
+                product.category ||
+                "General";
+
+
+            const location =
+                product.location ||
+                "Haijawekwa";
+
+
+            const sellerId =
+                product.sellerId ||
+                "";
+
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+
+            div.className =
+                "product";
+
+
+            div.innerHTML = `
+
+                <h3>
+                    🛒 ${name}
+                </h3>
+
+                <p>
+                    💰 Bei:
+                    <strong>
+                        TZS ${price.toLocaleString()}
+                    </strong>
+                </p>
+
+                <p>
+                    📦 Stock:
+                    ${quantity}
+                </p>
+
+                <p>
+                    🏷️ Category:
+                    ${category}
+                </p>
+
+                <p>
+                    📍 Location:
+                    ${location}
+                </p>
+
+                ${
+                    sellerId
+                    ?
+                    `
+                    <p>
+                        🏪 Seller:
+                        ${sellerId.substring(0,8)}
+                    </p>
+                    `
+                    :
+                    ""
+                }
+
+
+                <button
+                    onclick="
+                        addToCart(
+                            '${product.id}'
+                        )
+                    "
+                    ${
+                        quantity <= 0
+                        ?
+                        "disabled"
+                        :
+                        ""
+                    }
+                >
+
+                    ${
+                        quantity <= 0
+                        ?
+                        "🚫 Imeisha"
+                        :
+                        "🛒 Ongeza Cart"
+                    }
+
+                </button>
+
+            `;
+
+
+            productList.appendChild(
+                div
+            );
+
+        }
+    );
+
+}
+
+
+// ==================================================
+// ADD TO CART
+// ==================================================
+
+window.addToCart =
+function(productId) {
+
+
+    const product =
+        allProducts.find(
+            (item) =>
+                item.id ===
+                productId
+        );
+
+
+    if (!product) {
+
+        alert(
+            "❌ Bidhaa haijapatikana."
+        );
+
+        return;
+
+    }
+
+
+    const price =
+        Number(
+            product.price || 0
+        );
+
+
+    const available =
+        Number(
+            product.quantity ||
+            product.stock ||
+            0
+        );
+
+
+    if (available <= 0) {
+
+        alert(
+            "❌ Bidhaa imeisha."
+        );
+
+        return;
+
+    }
+
+
+    let cart =
+        JSON.parse(
+            localStorage.getItem(
+                "sokohubCart"
+            )
+        ) || [];
+
+
+    const existingIndex =
+        cart.findIndex(
+            (item) =>
+                item.id ===
+                product.id
+        );
+
+
+    if (
+        existingIndex !== -1
+    ) {
+
+
+        if (
+            cart[existingIndex]
+                .quantity
+            >= available
+        ) {
+
+            alert(
+                "❌ Huwezi kuongeza zaidi ya stock iliyopo."
+            );
+
+            return;
+
+        }
+
+
+        cart[existingIndex]
+            .quantity += 1;
+
+
+    } else {
+
+
+        cart.push({
+
+            id:
+                product.id,
+
+            name:
+                product.name ||
+                "Bidhaa",
+
+            price:
+                price,
+
+            quantity:
+                1,
+
+            category:
+                product.category ||
+                "",
+
+            location:
+                product.location ||
+                "",
+
+            sellerId:
+                product.sellerId ||
+                ""
+
+        });
+
+    }
+
+
+    localStorage.setItem(
+        "sokohubCart",
+        JSON.stringify(cart)
+    );
+
+
+    alert(
+        "✅ " +
+        product.name +
+        " imeongezwa kwenye Cart!"
+    );
+
+
+    console.log(
+        "CURRENT CART:",
+        cart
+    );
+
+};
+
+
+// ==================================================
+// SEARCH
+// ==================================================
+
+searchInput.addEventListener(
+    "input",
+    filterProducts
+);
+
+
+categoryFilter.addEventListener(
+    "change",
+    filterProducts
+);
+
+
+function filterProducts() {
+
+
+    const search =
+        searchInput.value
+            .trim()
+            .toLowerCase();
+
+
+    const category =
+        categoryFilter.value;
+
+
+    const filtered =
+        allProducts.filter(
+            (product) => {
+
+
+                const name =
+                    (
+                        product.name ||
+                        ""
+                    )
+                    .toLowerCase();
+
+
+                const productCategory =
+                    product.category ||
+                    "";
+
+
+                const matchesSearch =
+                    name.includes(
+                        search
+                    );
+
+
+                const matchesCategory =
+                    category ===
+                    "all"
+                    ||
+                    productCategory ===
+                    category;
+
+
+                return (
+                    matchesSearch &&
+                    matchesCategory
+                );
+
+            }
+        );
+
+
+    displayProducts(
+        filtered
+    );
+
+}
+
+
+// ==================================================
+// LOGOUT
+// ==================================================
+
+window.logoutUser =
+async function() {
+
+
+    try {
+
+
+        await signOut(
+            auth
+        );
+
+
+        window.location.href =
+            "login.html";
+
+
+    } catch (error) {
+
+
+        console.error(
+            error
+        );
+
+
+        alert(
+            "❌ Imeshindikana kutoka: " +
+            error.message
+        );
+
+    }
+
+};
+
+
+</script>
+
+
+</body>
+
+</html>

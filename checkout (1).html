@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="sw">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Checkout - SokoHub</title>
+
+<link
+    rel="stylesheet"
+    href="style.css"
+>
+
+</head>
+
+
+<body>
+
+
+<div class="home">
+
+    <h1>🧾 Checkout</h1>
+
+    <p>
+        Hakiki oda yako kabla ya kuituma.
+    </p>
+
+    <hr>
+
+
+    <!-- ============================= -->
+    <!-- PRODUCTS -->
+    <!-- ============================= -->
+
+    <h2>🛒 Bidhaa Ulizochagua</h2>
+
+    <div id="checkoutItems">
+
+        <p>
+            ⏳ Inapakia...
+        </p>
+
+    </div>
+
+
+    <h2 id="checkoutTotal">
+        Jumla: TZS 0
+    </h2>
+
+
+    <hr>
+
+
+    <!-- ============================= -->
+    <!-- DELIVERY -->
+    <!-- ============================= -->
+
+    <h2>📍 Taarifa za Delivery</h2>
+
+
+    <label>
+        Eneo la Delivery
+    </label>
+
+    <input
+        type="text"
+        id="deliveryLocation"
+        placeholder="Mfano: Temeke, Dar es Salaam"
+    >
+
+
+    <label>
+        Namba ya Simu
+    </label>
+
+    <input
+        type="tel"
+        id="phone"
+        placeholder="Mfano: 0683734621"
+    >
+
+
+    <hr>
+
+
+    <!-- ============================= -->
+    <!-- PAYMENT -->
+    <!-- ============================= -->
+
+    <h2>💳 Njia ya Malipo</h2>
+
+
+    <select id="paymentMethod">
+
+        <option value="">
+            Chagua njia ya malipo
+        </option>
+
+        <option value="cash">
+            💵 Cash on Delivery
+        </option>
+
+        <option value="mpesa">
+            📱 M-Pesa
+        </option>
+
+        <option value="airtel">
+            📱 Airtel Money
+        </option>
+
+        <option value="tigo">
+            📱 Tigo Pesa
+        </option>
+
+        <option value="halopesa">
+            📱 HaloPesa
+        </option>
+
+    </select>
+
+
+    <br><br>
+
+
+    <!-- ============================= -->
+    <!-- PLACE ORDER -->
+    <!-- ============================= -->
+
+    <button
+        id="placeOrderButton"
+        onclick="placeOrder()"
+    >
+
+        ✅ Weka Oda
+
+    </button>
+
+
+    <button
+        onclick="location.href='cart.html'"
+    >
+
+        ← Rudi Cart
+
+    </button>
+
+
+    <button
+        onclick="location.href='customer.html'"
+    >
+
+        👤 Account
+
+    </button>
+
+
+</div>
+
+
+
+<script type="module">
+
+
+// ==================================================
+// FIREBASE
+// ==================================================
+
+import {
+    auth,
+    db
+} from "./firebase.js";
+
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+
+import {
+    addDoc,
+    collection,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+
+// ==================================================
+// HTML ELEMENTS
+// ==================================================
+
+const checkoutItems =
+    document.getElementById(
+        "checkoutItems"
+    );
+
+
+const checkoutTotal =
+    document.getElementById(
+        "checkoutTotal"
+    );
+
+
+const placeOrderButton =
+    document.getElementById(
+        "placeOrderButton"
+    );
+
+
+// ==================================================
+// CART
+// ==================================================
+
+let cart =
+    JSON.parse(
+        localStorage.getItem(
+            "sokohubCart"
+        )
+    ) || [];
+
+
+// ==================================================
+// CURRENT USER
+// ==================================================
+
+let currentUser = null;
+
+
+// ==================================================
+// CHECK LOGIN
+// ==================================================
+
+onAuthStateChanged(
+    auth,
+    (user) => {
+
+        if (!user) {
+
+            alert(
+                "Tafadhali login kwanza."
+            );
+
+            window.location.href =
+                "login.html";
+
+            return;
+
+        }
+
+
+        currentUser = user;
+
+
+        console.log(
+            "CUSTOMER UID:",
+            user.uid
+        );
+
+
+        displayCheckout();
+
+    }
+);
+
+
+// ==================================================
+// DISPLAY CHECKOUT
+// ==================================================
+
+function displayCheckout() {
+
+
+    checkoutItems.innerHTML = "";
+
+
+    let total = 0;
+
+
+    if (
+        cart.length === 0
+    ) {
+
+
+        checkoutItems.innerHTML = `
+
+            <div class="product">
+
+                <h3>
+                    📭 Cart iko tupu
+                </h3>
+
+                <p>
+                    Huna bidhaa ya kuagiza.
+                </p>
+
+                <button
+                    onclick="
+                        location.href='home.html'
+                    "
+                >
+
+                    🛍️ Tafuta Bidhaa
+
+                </button>
+
+            </div>
+
+        `;
+
+
+        checkoutTotal.textContent =
+            "Jumla: TZS 0";
+
+
+        placeOrderButton.disabled =
+            true;
+
+
+        return;
+
+    }
+
+
+    placeOrderButton.disabled =
+        false;
+
+
+    cart.forEach(
+        (item) => {
+
+
+            const price =
+                Number(
+                    item.price || 0
+                );
+
+
+            const quantity =
+                Number(
+                    item.quantity || 1
+                );
+
+
+            const subtotal =
+                price *
+                quantity;
+
+
+            total += subtotal;
+
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+
+            div.className =
+                "product";
+
+
+            div.innerHTML = `
+
+                <h3>
+                    🛒 ${item.name || "Bidhaa"}
+                </h3>
+
+                <p>
+                    💰 Bei:
+                    TZS ${price.toLocaleString()}
+                </p>
+
+                <p>
+                    📦 Quantity:
+                    ${quantity}
+                </p>
+
+                <p>
+                    💰 Subtotal:
+                    <strong>
+                        TZS ${subtotal.toLocaleString()}
+                    </strong>
+                </p>
+
+                ${
+                    item.category
+                    ?
+                    `
+                    <p>
+                        🏷️ Category:
+                        ${item.category}
+                    </p>
+                    `
+                    :
+                    ""
+                }
+
+                ${
+                    item.location
+                    ?
+                    `
+                    <p>
+                        📍 Location:
+                        ${item.location}
+                    </p>
+                    `
+                    :
+                    ""
+                }
+
+            `;
+
+
+            checkoutItems.appendChild(
+                div
+            );
+
+        }
+    );
+
+
+    checkoutTotal.textContent =
+        "Jumla: TZS " +
+        total.toLocaleString();
+
+}
+
+
+// ==================================================
+// PLACE ORDER
+// ==================================================
+
+window.placeOrder =
+async function() {
+
+
+    // ==============================
+    // CHECK LOGIN
+    // ==============================
+
+    if (!currentUser) {
+
+        alert(
+            "Tafadhali login kwanza."
+        );
+
+        window.location.href =
+            "login.html";
+
+        return;
+
+    }
+
+
+    // ==============================
+    // CHECK CART
+    // ==============================
+
+    if (
+        cart.length === 0
+    ) {
+
+        alert(
+            "🛒 Cart yako iko tupu."
+        );
+
+        return;
+
+    }
+
+
+    // ==============================
+    // GET FORM DATA
+    // ==============================
+
+    const location =
+        document
+            .getElementById(
+                "deliveryLocation"
+            )
+            .value
+            .trim();
+
+
+    const phone =
+        document
+            .getElementById(
+                "phone"
+            )
+            .value
+            .trim();
+
+
+    const paymentMethod =
+        document
+            .getElementById(
+                "paymentMethod"
+            )
+            .value;
+
+
+    // ==============================
+    // VALIDATION
+    // ==============================
+
+    if (!location) {
+
+        alert(
+            "📍 Tafadhali weka eneo la delivery."
+        );
+
+        return;
+
+    }
+
+
+    if (!phone) {
+
+        alert(
+            "📞 Tafadhali weka namba ya simu."
+        );
+
+        return;
+
+    }
+
+
+    if (!paymentMethod) {
+
+        alert(
+            "💳 Tafadhali chagua njia ya malipo."
+        );
+
+        return;
+
+    }
+
+
+    // ==============================
+    // CALCULATE TOTAL
+    // ==============================
+
+    let total = 0;
+
+
+    cart.forEach(
+        (item) => {
+
+            total +=
+                Number(
+                    item.price || 0
+                ) *
+                Number(
+                    item.quantity || 1
+                );
+
+        }
+    );
+
+
+    // ==============================
+    // GET SELLER IDS
+    // ==============================
+
+    const sellerIds = [
+
+        ...new Set(
+
+            cart
+
+                .map(
+                    (item) =>
+                        item.sellerId
+                )
+
+                .filter(
+                    (id) => id
+                )
+
+        )
+
+    ];
+
+
+    // ==============================
+    // PREPARE ITEMS
+    // ==============================
+
+    const orderItems =
+        cart.map(
+            (item) => ({
+
+                id:
+                    item.id || "",
+
+                name:
+                    item.name || "Bidhaa",
+
+                price:
+                    Number(
+                        item.price || 0
+                    ),
+
+                quantity:
+                    Number(
+                        item.quantity || 1
+                    ),
+
+                category:
+                    item.category || "",
+
+                location:
+                    item.location || "",
+
+                sellerId:
+                    item.sellerId || ""
+
+            })
+        );
+
+
+    // ==============================
+    // DISABLE BUTTON
+    // ==============================
+
+    placeOrderButton.disabled =
+        true;
+
+
+    placeOrderButton.textContent =
+        "⏳ Inaweka Oda...";
+
+
+    try {
+
+
+        // ==============================
+        // SAVE ORDER
+        // ==============================
+
+        const orderData = {
+
+            // CUSTOMER
+            customerId:
+                currentUser.uid,
+
+
+            // SELLER
+            sellerId:
+                sellerIds[0] || "",
+
+
+            // RIDER
+            riderId:
+                "",
+
+
+            // PRODUCTS
+            items:
+                orderItems,
+
+
+            // TOTAL
+            total:
+                total,
+
+
+            // DELIVERY
+            deliveryLocation:
+                location,
+
+
+            // PHONE
+            phone:
+                phone,
+
+
+            // PAYMENT
+            paymentMethod:
+                paymentMethod,
+
+
+            // STATUS
+            status:
+                "pending",
+
+
+            // DATE
+            createdAt:
+                serverTimestamp()
+
+        };
+
+
+        console.log(
+            "ORDER DATA:",
+            orderData
+        );
+
+
+        const orderRef =
+            await addDoc(
+                collection(
+                    db,
+                    "orders"
+                ),
+                orderData
+            );
+
+
+        console.log(
+            "ORDER ID:",
+            orderRef.id
+        );
+
+
+        // ==============================
+        // CLEAR CART
+        // ==============================
+
+        localStorage.removeItem(
+            "sokohubCart"
+        );
+
+
+        cart = [];
+
+
+        // ==============================
+        // SUCCESS
+        // ==============================
+
+        alert(
+            "✅ Oda imewekwa kikamilifu!"
+        );
+
+
+        // ==============================
+        // GO ORDERS
+        // ==============================
+
+        window.location.href =
+            "orders.html";
+
+
+    } catch (error) {
+
+
+        console.error(
+            "ORDER ERROR:",
+            error
+        );
+
+
+        alert(
+            "❌ Oda haijawekwa:\n\n" +
+            error.message
+        );
+
+
+        // ==============================
+        // ENABLE BUTTON AGAIN
+        // ==============================
+
+        placeOrderButton.disabled =
+            false;
+
+
+        placeOrderButton.textContent =
+            "✅ Weka Oda";
+
+    }
+
+};
+
+
+</script>
+
+
+</body>
+
+</html>

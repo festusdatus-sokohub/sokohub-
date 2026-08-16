@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="sw">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Oda Zangu - SokoHub</title>
+
+<link
+    rel="stylesheet"
+    href="style.css"
+>
+
+</head>
+
+
+<body>
+
+
+<div class="home">
+
+    <h1>📦 Oda Zangu</h1>
+
+    <p>
+        Oda zako na hali ya delivery.
+    </p>
+
+    <p id="liveStatus">
+        🔄 Inaunganisha live...
+    </p>
+
+    <hr>
+
+
+    <div id="orderList">
+
+        <p>
+            ⏳ Inaunganisha na Firebase...
+        </p>
+
+    </div>
+
+
+    <br>
+
+
+    <button
+        onclick="location.href='home.html'"
+    >
+
+        🛒 Endelea Shopping
+
+    </button>
+
+
+    <button
+        onclick="location.href='customer.html'"
+    >
+
+        👤 Account
+
+    </button>
+
+</div>
+
+
+
+<script type="module">
+
+
+// ==================================================
+// FIREBASE
+// ==================================================
+
+import {
+    auth,
+    db
+} from "./firebase.js";
+
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+
+import {
+    collection,
+    query,
+    where,
+    onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+
+// ==================================================
+// HTML
+// ==================================================
+
+const orderList =
+    document.getElementById(
+        "orderList"
+    );
+
+
+const liveStatus =
+    document.getElementById(
+        "liveStatus"
+    );
+
+
+// ==================================================
+// LIVE LISTENER
+// ==================================================
+
+let unsubscribeOrders = null;
+
+
+// ==================================================
+// AUTH
+// ==================================================
+
+onAuthStateChanged(
+    auth,
+    (user) => {
+
+
+        console.log(
+            "👤 CUSTOMER:",
+            user
+        );
+
+
+        // ==========================================
+        // NOT LOGGED IN
+        // ==========================================
+
+        if (!user) {
+
+
+            liveStatus.textContent =
+                "🔴 Hujalogin";
+
+
+            orderList.innerHTML = `
+
+                <div class="product">
+
+                    <h3>
+                        ⚠️ Tafadhali Login
+                    </h3>
+
+                    <p>
+                        Hujalogin kwenye akaunti.
+                    </p>
+
+
+                    <button
+                        onclick="
+                            location.href='login.html'
+                        "
+                    >
+
+                        🔐 Login
+
+                    </button>
+
+                </div>
+
+            `;
+
+
+            return;
+
+        }
+
+
+        console.log(
+            "CUSTOMER UID:",
+            user.uid
+        );
+
+
+        // ==========================================
+        // START LIVE ORDERS
+        // ==========================================
+
+        listenToCustomerOrders(
+            user.uid
+        );
+
+    }
+
+);
+
+
+// ==================================================
+// LISTEN TO CUSTOMER ORDERS LIVE
+// ==================================================
+
+function listenToCustomerOrders(
+    customerId
+) {
+
+
+    liveStatus.textContent =
+        "🟢 Live: Inaangalia oda zako";
+
+
+    // ==========================================
+    // QUERY
+    // ==========================================
+
+    const ordersQuery =
+        query(
+
+            collection(
+                db,
+                "orders"
+            ),
+
+            where(
+                "customerId",
+                "==",
+                customerId
+            )
+
+        );
+
+
+    // ==========================================
+    // REAL-TIME LISTENER
+    // ==========================================
+
+    unsubscribeOrders =
+        onSnapshot(
+
+            ordersQuery,
+
+            (snapshot) => {
+
+
+                console.log(
+                    "📦 LIVE ORDERS:",
+                    snapshot.size
+                );
+
+
+                // ==================================
+                // CLEAR
+                // ==================================
+
+                orderList.innerHTML =
+                    "";
+
+
+                // ==================================
+                // NO ORDERS
+                // ==================================
+
+                if (
+                    snapshot.empty
+                ) {
+
+
+                    orderList.innerHTML = `
+
+                        <div class="product">
+
+                            <h3>
+                                📭 Huna Oda
+                            </h3>
+
+                            <p>
+                                Bado hujaweka oda.
+                            </p>
+
+                        </div>
+
+                    `;
+
+
+                    return;
+
+                }
+
+
+                // ==================================
+                // LOOP
+                // ==================================
+
+                snapshot.forEach(
+                    (orderDoc) => {
+
+
+                        const order =
+                            orderDoc.data();
+
+
+                        const orderId =
+                            orderDoc.id;
+
+
+                        displayOrder(
+                            orderId,
+                            order
+                        );
+
+                    }
+
+                );
+
+
+            },
+
+            (error) => {
+
+
+                console.error(
+                    "❌ LIVE ORDER ERROR:",
+                    error
+                );
+
+
+                liveStatus.textContent =
+                    "🔴 Live connection error";
+
+
+                orderList.innerHTML = `
+
+                    <div class="product">
+
+                        <h3>
+                            ❌ Tatizo la Firebase
+                        </h3>
+
+                        <p>
+                            ${error.message}
+                        </p>
+
+                    </div>
+
+                `;
+
+            }
+
+        );
+
+}
+
+
+// ==================================================
+// DISPLAY ORDER
+// ==================================================
+
+function displayOrder(
+    orderId,
+    order
+) {
+
+
+    // ==========================================
+    // ITEMS
+    // ==========================================
+
+    const items =
+        Array.isArray(
+            order.items
+        )
+        ?
+        order.items
+        :
+        [];
+
+
+    let itemsHTML = "";
+
+
+    items.forEach(
+        (item) => {
+
+
+            const name =
+                item.name ||
+                "Bidhaa";
+
+
+            const price =
+                Number(
+                    item.price || 0
+                );
+
+
+            const quantity =
+                Number(
+                    item.quantity || 1
+                );
+
+
+            const subtotal =
+                price *
+                quantity;
+
+
+            itemsHTML += `
+
+                <div
+                    style="
+                        border:1px solid #ddd;
+                        padding:10px;
+                        margin:8px 0;
+                        border-radius:8px;
+                    "
+                >
+
+                    <p>
+
+                        🛒
+
+                        <strong>
+                            ${name}
+                        </strong>
+
+                    </p>
+
+
+                    <p>
+
+                        💰 Bei:
+
+                        TZS
+                        ${price.toLocaleString()}
+
+                    </p>
+
+
+                    <p>
+
+                        📦 Quantity:
+
+                        ${quantity}
+
+                    </p>
+
+
+                    <p>
+
+                        💰 Subtotal:
+
+                        <strong>
+
+                            TZS
+                            ${subtotal.toLocaleString()}
+
+                        </strong>
+
+                    </p>
+
+                </div>
+
+            `;
+
+        }
+
+    );
+
+
+    // ==========================================
+    // STATUS
+    // ==========================================
+
+    const status =
+        order.status ||
+        "pending";
+
+
+    let statusHTML = "";
+
+
+    if (
+        status ===
+        "pending"
+    ) {
+
+
+        statusHTML = `
+
+            <div>
+
+                <p>
+
+                    🟡
+
+                    <strong>
+                        Oda Inasubiri
+                    </strong>
+
+                </p>
+
+                <p>
+                    ⏳ Seller bado
+                    hajathibitisha oda.
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+
+    else if (
+        status ===
+        "confirmed"
+    ) {
+
+
+        statusHTML = `
+
+            <div>
+
+                <p>
+
+                    🟢
+
+                    <strong>
+                        Order Imethibitishwa
+                    </strong>
+
+                </p>
+
+
+                <p>
+
+                    ⏳ Inasubiri Rider
+                    kuchukua oda.
+
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+
+    else if (
+        status ===
+        "picked_up"
+    ) {
+
+
+        statusHTML = `
+
+            <div>
+
+                <p>
+
+                    🟢
+                    Order Imethibitishwa
+
+                </p>
+
+
+                <p>
+
+                    🏍️
+
+                    <strong>
+                        Rider Amechukua Oda
+                    </strong>
+
+                </p>
+
+
+                <p>
+
+                    ⏳ Rider anaandaa
+                    delivery.
+
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+
+    else if (
+        status ===
+        "on_the_way"
+    ) {
+
+
+        statusHTML = `
+
+            <div>
+
+                <p>
+
+                    🟢
+                    Order Imethibitishwa
+
+                </p>
+
+
+                <p>
+
+                    🏍️
+                    Rider Amechukua Oda
+
+                </p>
+
+
+                <p>
+
+                    🚴
+
+                    <strong>
+                        Delivery Iko Njiani
+                    </strong>
+
+                </p>
+
+
+                <p>
+
+                    📍 Rider anaelekea
+                    kwenye eneo lako.
+
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+
+    else if (
+        status ===
+        "delivered"
+    ) {
+
+
+        statusHTML = `
+
+            <div>
+
+                <p>
+
+                    🟢
+                    Order Imethibitishwa
+
+                </p>
+
+
+                <p>
+
+                    🏍️
+                    Rider Amechukua Oda
+
+                </p>
+
+
+                <p>
+
+                    🚴
+                    Delivery Iko Njiani
+
+                </p>
+
+
+                <p>
+
+                    ✅
+
+                    <strong>
+                        Oda Imewasilishwa
+                    </strong>
+
+                </p>
+
+
+                <p>
+
+                    🎉 Asante kwa kutumia
+                    SokoHub.
+
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+
+    else {
+
+
+        statusHTML = `
+
+            <p>
+
+                ℹ️ Status:
+
+                <strong>
+                    ${status}
+                </strong>
+
+            </p>
+
+        `;
+
+    }
+
+
+    // ==========================================
+    // RIDER
+    // ==========================================
+
+    let riderHTML = "";
+
+
+    if (
+        order.riderId
+    ) {
+
+
+        riderHTML = `
+
+            <p>
+
+                🏍️ Rider amepangiwa
+                oda hii.
+
+            </p>
+
+        `;
+
+    }
+
+
+    // ==========================================
+    // ORDER CARD
+    // ==========================================
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+
+    div.className =
+        "product";
+
+
+    div.innerHTML = `
+
+        <h3>
+
+            📦 Oda #
+
+            ${orderId.substring(
+                0,
+                8
+            )}
+
+        </h3>
+
+
+        <p
+            style="
+                font-size:12px;
+                word-break:break-all;
+            "
+        >
+
+            Order ID:
+
+            ${orderId}
+
+        </p>
+
+
+        <hr>
+
+
+        <h3>
+            🛒 Bidhaa
+        </h3>
+
+
+        ${
+            itemsHTML ||
+            "<p>Hakuna bidhaa.</p>"
+        }
+
+
+        <hr>
+
+
+        <h3>
+
+            💰 Jumla:
+
+            TZS
+
+            ${Number(
+                order.total || 0
+            ).toLocaleString()}
+
+        </h3>
+
+
+        <p>
+
+            📍 Delivery:
+
+            ${
+                order.deliveryLocation ||
+                "Haijawekwa"
+            }
+
+        </p>
+
+
+        <p>
+
+            📞 Simu:
+
+            ${
+                order.phone ||
+                "Haijawekwa"
+            }
+
+        </p>
+
+
+        <p>
+
+            💳 Malipo:
+
+            ${
+                order.paymentMethod ||
+                "Haijawekwa"
+            }
+
+        </p>
+
+
+        <hr>
+
+
+        <h3>
+            📍 Hali ya Delivery
+        </h3>
+
+
+        ${statusHTML}
+
+
+        ${riderHTML}
+
+    `;
+
+
+    orderList.appendChild(
+        div
+    );
+
+}
+
+
+// ==================================================
+// CLEAN UP LISTENER
+// ==================================================
+
+window.addEventListener(
+    "beforeunload",
+    () => {
+
+        if (
+            unsubscribeOrders
+        ) {
+
+            unsubscribeOrders();
+
+        }
+
+    }
+);
+
+
+</script>
+
+
+</body>
+
+</html>
