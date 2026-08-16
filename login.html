@@ -5,21 +5,32 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
 <title>Login - SokoHub</title>
 
-<link rel="stylesheet" href="style.css">
+<link
+    rel="stylesheet"
+    href="style.css"
+>
 
 </head>
 
+
 <body>
+
 
 <div class="login-box">
 
     <h1>🛒 SokoHub</h1>
 
     <h2>Karibu Tena</h2>
+
+
+    <!-- EMAIL -->
 
     <input
         type="email"
@@ -28,12 +39,18 @@
         autocomplete="email"
     >
 
+
+    <!-- PASSWORD -->
+
     <input
         type="password"
         id="password"
         placeholder="Password"
         autocomplete="current-password"
     >
+
+
+    <!-- LOGIN -->
 
     <button
         id="loginButton"
@@ -42,24 +59,59 @@
         🔐 Ingia
     </button>
 
-    <p id="loginMessage"></p>
+
+    <!-- FORGOT PASSWORD -->
 
     <p>
-        Huna Account?
-        <a href="register.html">Jisajili</a>
+
+        <a
+            href="#"
+            onclick="resetPassword(); return false;"
+        >
+            🔑 Umesahau Password?
+        </a>
+
     </p>
+
+
+    <!-- MESSAGE -->
+
+    <p id="loginMessage"></p>
+
+
+    <p>
+
+        Huna Account?
+
+        <a href="register.html">
+            Jisajili
+        </a>
+
+    </p>
+
 
 </div>
 
 
+
 <script type="module">
 
-import { auth, db } from "./firebase.js";
+
+// ==================================================
+// FIREBASE
+// ==================================================
+
+import {
+    auth,
+    db
+} from "./firebase.js";
+
 
 import {
     signInWithEmailAndPassword,
-    onAuthStateChanged
+    sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
 
 import {
     doc,
@@ -67,31 +119,47 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 
+
+// ==================================================
+// HTML
+// ==================================================
+
 const emailInput =
     document.getElementById("email");
+
 
 const passwordInput =
     document.getElementById("password");
 
+
 const loginButton =
     document.getElementById("loginButton");
 
+
 const loginMessage =
     document.getElementById("loginMessage");
+
 
 
 // ==================================================
 // LOGIN
 // ==================================================
 
-window.loginUser = async function () {
+window.loginUser =
+async function () {
+
 
     const email =
         emailInput.value.trim();
 
+
     const password =
         passwordInput.value;
 
+
+    // ----------------------------------------------
+    // VALIDATION
+    // ----------------------------------------------
 
     if (!email) {
 
@@ -99,6 +167,7 @@ window.loginUser = async function () {
             "❌ Weka email yako.";
 
         return;
+
     }
 
 
@@ -108,22 +177,33 @@ window.loginUser = async function () {
             "❌ Weka password yako.";
 
         return;
+
     }
 
 
-    loginButton.disabled = true;
+    // ----------------------------------------------
+    // BUTTON
+    // ----------------------------------------------
+
+    loginButton.disabled =
+        true;
+
 
     loginButton.textContent =
         "⏳ Inaingia...";
 
-    loginMessage.textContent = "";
+
+    loginMessage.textContent =
+        "";
+
 
 
     try {
 
-        // ------------------------------------------
+
+        // ==========================================
         // FIREBASE LOGIN
-        // ------------------------------------------
+        // ==========================================
 
         const result =
             await signInWithEmailAndPassword(
@@ -138,14 +218,15 @@ window.loginUser = async function () {
 
 
         console.log(
-            "✅ LOGIN SUCCESS:",
+            "LOGIN SUCCESS:",
             user.uid
         );
 
 
-        // ------------------------------------------
+
+        // ==========================================
         // GET USER PROFILE
-        // ------------------------------------------
+        // ==========================================
 
         const userRef =
             doc(
@@ -159,49 +240,67 @@ window.loginUser = async function () {
             await getDoc(userRef);
 
 
+
         if (!userSnap.exists()) {
 
-            loginMessage.textContent =
-                "❌ Akaunti imeingia lakini taarifa za user hazipo.";
 
-            loginButton.disabled = false;
+            loginMessage.textContent =
+                "⚠️ Login imefanikiwa lakini profile ya user haipo Firestore.";
+
+
+            loginButton.disabled =
+                false;
+
 
             loginButton.textContent =
                 "🔐 Ingia";
 
+
             return;
+
         }
 
+
+
+        // ==========================================
+        // USER DATA
+        // ==========================================
 
         const userData =
             userSnap.data();
 
 
-        console.log(
-            "👤 USER DATA:",
-            userData
-        );
-
-
         const role =
             String(
                 userData.role || ""
-            ).toLowerCase().trim();
+            )
+            .toLowerCase()
+            .trim();
 
 
-        // ------------------------------------------
-        // SAVE USER INFO
-        // ------------------------------------------
+        console.log(
+            "USER ROLE:",
+            role
+        );
+
+
+
+        // ==========================================
+        // SAVE LOGIN
+        // ==========================================
 
         localStorage.setItem(
             "sokohubUser",
             JSON.stringify({
 
-                uid: user.uid,
+                uid:
+                    user.uid,
 
-                email: user.email,
+                email:
+                    user.email,
 
-                role: role,
+                role:
+                    role,
 
                 fullName:
                     userData.fullName || ""
@@ -210,20 +309,24 @@ window.loginUser = async function () {
         );
 
 
-        // ------------------------------------------
+
+        // ==========================================
         // REDIRECT
-        // ------------------------------------------
+        // ==========================================
 
         loginMessage.textContent =
-            "✅ Login imefanikiwa. Inafungua dashboard...";
+            "✅ Login imefanikiwa...";
 
 
-        if (role === "customer") {
+        if (
+            role === "customer"
+        ) {
 
             window.location.href =
                 "customer.html";
 
         }
+
 
         else if (
             role === "seller" ||
@@ -236,26 +339,38 @@ window.loginUser = async function () {
 
         }
 
-        else if (role === "farmer") {
+
+        else if (
+            role === "farmer"
+        ) {
 
             window.location.href =
                 "farmer.html";
 
         }
 
-        else if (role === "rider") {
+
+        else if (
+            role === "rider"
+        ) {
 
             window.location.href =
                 "rider.html";
 
         }
 
+
         else {
 
-            loginMessage.textContent =
-                "⚠️ Login imefanikiwa lakini role ya akaunti haijulikani.";
 
-            loginButton.disabled = false;
+            loginMessage.textContent =
+                "⚠️ Login imefanikiwa lakini role yako haijulikani: " +
+                role;
+
+
+            loginButton.disabled =
+                false;
+
 
             loginButton.textContent =
                 "🔐 Ingia";
@@ -263,16 +378,19 @@ window.loginUser = async function () {
         }
 
 
-    } catch (error) {
+    }
+
+    catch (error) {
+
 
         console.error(
-            "❌ LOGIN ERROR:",
+            "LOGIN ERROR:",
             error
         );
 
 
         let message =
-            "Login imeshindikana.";
+            "❌ Login imeshindikana.";
 
 
         if (
@@ -291,7 +409,7 @@ window.loginUser = async function () {
         ) {
 
             message =
-                "❌ Akaunti hii haipo.";
+                "❌ Akaunti haipo.";
 
         }
 
@@ -315,16 +433,6 @@ window.loginUser = async function () {
 
         }
 
-        else if (
-            error.code ===
-            "auth/too-many-requests"
-        ) {
-
-            message =
-                "⚠️ Jaribu tena baada ya muda.";
-
-        }
-
         else {
 
             message =
@@ -341,6 +449,7 @@ window.loginUser = async function () {
         loginButton.disabled =
             false;
 
+
         loginButton.textContent =
             "🔐 Ingia";
 
@@ -348,7 +457,175 @@ window.loginUser = async function () {
 
 };
 
+
+
+// ==================================================
+// RESET PASSWORD
+// ==================================================
+
+window.resetPassword =
+async function () {
+
+
+    const email =
+        emailInput.value.trim();
+
+
+    // ----------------------------------------------
+    // CHECK EMAIL
+    // ----------------------------------------------
+
+    if (!email) {
+
+        alert(
+            "📧 Kwanza andika email yako kwenye sehemu ya Email."
+        );
+
+        emailInput.focus();
+
+        return;
+
+    }
+
+
+
+    // ----------------------------------------------
+    // CONFIRM
+    // ----------------------------------------------
+
+    const confirmed =
+        confirm(
+
+            "🔑 Reset Password\n\n" +
+
+            "Tutakutumia link ya kuweka password mpya kwenye:\n\n" +
+
+            email +
+
+            "\n\nEndelea?"
+
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+
+    try {
+
+
+        loginMessage.textContent =
+            "⏳ Inatuma reset link...";
+
+
+
+        // ==========================================
+        // SEND RESET EMAIL
+        // ==========================================
+
+        await sendPasswordResetEmail(
+            auth,
+            email
+        );
+
+
+
+        // ==========================================
+        // SUCCESS
+        // ==========================================
+
+        loginMessage.textContent =
+            "✅ Reset link imetumwa kwenye email yako.";
+
+
+        alert(
+
+            "✅ Reset link imetumwa!\n\n" +
+
+            "Angalia Inbox yako.\n" +
+
+            "Kama huioni, angalia Spam/Junk.\n\n" +
+
+            "Fungua link iliyopo kwenye email hiyo " +
+
+            "kisha weka password mpya."
+
+        );
+
+
+    }
+
+    catch (error) {
+
+
+        console.error(
+            "RESET PASSWORD ERROR:",
+            error
+        );
+
+
+        let message =
+            "❌ Imeshindikana kutuma reset link.";
+
+
+        if (
+            error.code ===
+            "auth/invalid-email"
+        ) {
+
+            message =
+                "❌ Email uliyoandika si sahihi.";
+
+        }
+
+        else if (
+            error.code ===
+            "auth/user-not-found"
+        ) {
+
+            message =
+                "❌ Hakuna account yenye email hiyo.";
+
+        }
+
+        else if (
+            error.code ===
+            "auth/too-many-requests"
+        ) {
+
+            message =
+                "⚠️ Umejaribu mara nyingi. Subiri kidogo kisha ujaribu tena.";
+
+        }
+
+        else {
+
+            message =
+                "❌ " +
+                error.message;
+
+        }
+
+
+        loginMessage.textContent =
+            message;
+
+
+        alert(
+            message
+        );
+
+    }
+
+};
+
+
 </script>
+
 
 </body>
 
