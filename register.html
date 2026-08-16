@@ -5,74 +5,580 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-<title>Register - Sokohub</title>
+<title>Jisajili - SokoHub</title>
 
-<link rel="stylesheet" href="style.css">
+<link
+    rel="stylesheet"
+    href="style.css"
+>
 
 </head>
 
+
 <body>
+
 
 <div class="login-box">
 
-<h1>Sokohub</h1>
+    <h1>🛒 SokoHub</h1>
 
-<h2>Jisajili</h2>
+    <h2>Jisajili</h2>
 
-<input
-  type="text"
-  id="fullName"
-  placeholder="Jina kamili"
->
 
-<input
-  type="tel"
-  id="phone"
-  placeholder="Namba ya simu"
->
+    <!-- FULL NAME -->
 
-<input
-  type="email"
-  id="email"
-  placeholder="Email"
->
+    <input
+        type="text"
+        id="fullName"
+        placeholder="Jina kamili"
+    >
 
-<input
-  type="password"
-  id="password"
-  placeholder="Password"
->
 
-<select id="role">
+    <!-- PHONE -->
 
-  <option value="">Chagua aina ya mtumiaji</option>
+    <input
+        type="tel"
+        id="phone"
+        placeholder="Namba ya simu"
+    >
 
-  <option value="customer">Mteja</option>
 
-  <option value="farmer">Mkulima</option>
+    <!-- EMAIL -->
 
-  <option value="supplier">Supplier</option>
+    <input
+        type="email"
+        id="email"
+        placeholder="Email"
+    >
 
-  <option value="retailer">Retailer</option>
 
-  <option value="rider">Delivery Rider</option>
+    <!-- PASSWORD -->
 
-</select>
+    <input
+        type="password"
+        id="password"
+        placeholder="Password"
+    >
 
-<button onclick="registerUser()">
-  Jisajili
-</button>
 
-<p>
-  Tayari una account?
-  <a href="login.html">Ingia</a>
-</p>
+    <!-- CONFIRM PASSWORD -->
+
+    <input
+        type="password"
+        id="confirmPassword"
+        placeholder="Rudia Password"
+    >
+
+
+    <!-- ROLE -->
+
+    <select id="role">
+
+        <option value="">
+            Chagua aina ya account
+        </option>
+
+        <option value="customer">
+            🛒 Customer
+        </option>
+
+        <option value="farmer">
+            🌾 Farmer
+        </option>
+
+        <option value="supplier">
+            📦 Supplier
+        </option>
+
+        <option value="retailer">
+            🏪 Retailer
+        </option>
+
+        <option value="rider">
+            🏍️ Delivery Rider
+        </option>
+
+    </select>
+
+
+    <br><br>
+
+
+    <!-- REGISTER -->
+
+    <button
+        id="registerButton"
+        onclick="registerUser()"
+    >
+
+        ✅ Jisajili
+
+    </button>
+
+
+    <p id="message"></p>
+
+
+    <p>
+
+        Tayari una Account?
+
+        <a href="login.html">
+            Ingia
+        </a>
+
+    </p>
+
 
 </div>
 
-<script type="module" src="auth.js"></script>
+
+
+<script type="module">
+
+
+// ==================================================
+// FIREBASE
+// ==================================================
+
+import {
+    auth,
+    db
+} from "./firebase.js";
+
+
+import {
+    createUserWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+
+import {
+    doc,
+    setDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+
+
+// ==================================================
+// HTML
+// ==================================================
+
+const fullNameInput =
+    document.getElementById("fullName");
+
+
+const phoneInput =
+    document.getElementById("phone");
+
+
+const emailInput =
+    document.getElementById("email");
+
+
+const passwordInput =
+    document.getElementById("password");
+
+
+const confirmPasswordInput =
+    document.getElementById("confirmPassword");
+
+
+const roleInput =
+    document.getElementById("role");
+
+
+const registerButton =
+    document.getElementById("registerButton");
+
+
+const message =
+    document.getElementById("message");
+
+
+
+// ==================================================
+// REGISTER
+// ==================================================
+
+window.registerUser =
+async function () {
+
+
+    const fullName =
+        fullNameInput.value.trim();
+
+
+    const phone =
+        phoneInput.value.trim();
+
+
+    const email =
+        emailInput.value.trim();
+
+
+    const password =
+        passwordInput.value;
+
+
+    const confirmPassword =
+        confirmPasswordInput.value;
+
+
+    const role =
+        roleInput.value;
+
+
+
+    // ==================================================
+    // VALIDATION
+    // ==================================================
+
+    if (!fullName) {
+
+        alert(
+            "👤 Weka jina lako."
+        );
+
+        return;
+
+    }
+
+
+    if (!phone) {
+
+        alert(
+            "📞 Weka namba ya simu."
+        );
+
+        return;
+
+    }
+
+
+    if (!email) {
+
+        alert(
+            "📧 Weka email."
+        );
+
+        return;
+
+    }
+
+
+    if (password.length < 6) {
+
+        alert(
+            "🔐 Password iwe na angalau characters 6."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        password !==
+        confirmPassword
+    ) {
+
+        alert(
+            "❌ Password hazifanani."
+        );
+
+        return;
+
+    }
+
+
+    if (!role) {
+
+        alert(
+            "👤 Chagua aina ya account."
+        );
+
+        return;
+
+    }
+
+
+
+    // ==================================================
+    // DISABLE BUTTON
+    // ==================================================
+
+    registerButton.disabled =
+        true;
+
+
+    registerButton.textContent =
+        "⏳ Inatengeneza account...";
+
+
+    message.textContent =
+        "";
+
+
+
+    try {
+
+
+        // ==================================================
+        // CREATE FIREBASE AUTH ACCOUNT
+        // ==================================================
+
+        const result =
+            await createUserWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+
+
+        const user =
+            result.user;
+
+
+        console.log(
+            "✅ AUTH USER:",
+            user.uid
+        );
+
+
+
+        // ==================================================
+        // CREATE FIRESTORE USER PROFILE
+        // ==================================================
+
+        await setDoc(
+
+            doc(
+                db,
+                "users",
+                user.uid
+            ),
+
+            {
+
+                uid:
+                    user.uid,
+
+                fullName:
+                    fullName,
+
+                phone:
+                    phone,
+
+                email:
+                    email,
+
+                role:
+                    role,
+
+                createdAt:
+                    serverTimestamp()
+
+            }
+
+        );
+
+
+
+        console.log(
+            "✅ USER PROFILE CREATED"
+        );
+
+
+
+        // ==================================================
+        // SAVE LOCAL LOGIN INFO
+        // ==================================================
+
+        localStorage.setItem(
+
+            "sokohubUser",
+
+            JSON.stringify({
+
+                uid:
+                    user.uid,
+
+                email:
+                    email,
+
+                fullName:
+                    fullName,
+
+                phone:
+                    phone,
+
+                role:
+                    role
+
+            })
+
+        );
+
+
+
+        // ==================================================
+        // SUCCESS
+        // ==================================================
+
+        message.textContent =
+            "✅ Account imetengenezwa!";
+
+
+        alert(
+            "🎉 Account yako imetengenezwa kikamilifu!"
+        );
+
+
+
+        // ==================================================
+        // REDIRECT BY ROLE
+        // ==================================================
+
+        if (
+            role ===
+            "customer"
+        ) {
+
+            window.location.href =
+                "customer.html";
+
+        }
+
+
+        else if (
+            role === "seller" ||
+            role === "supplier" ||
+            role === "retailer"
+        ) {
+
+            window.location.href =
+                "seller.html";
+
+        }
+
+
+        else if (
+            role === "farmer"
+        ) {
+
+            window.location.href =
+                "farmer.html";
+
+        }
+
+
+        else if (
+            role === "rider"
+        ) {
+
+            window.location.href =
+                "rider.html";
+
+        }
+
+
+        else {
+
+            window.location.href =
+                "home.html";
+
+        }
+
+
+    }
+
+    catch (error) {
+
+
+        console.error(
+            "❌ REGISTER ERROR:",
+            error
+        );
+
+
+        let errorMessage =
+            error.message;
+
+
+
+        if (
+            error.code ===
+            "auth/email-already-in-use"
+        ) {
+
+            errorMessage =
+                "❌ Email hii tayari ina account. Jaribu email nyingine au ingia.";
+
+        }
+
+
+        else if (
+            error.code ===
+            "auth/invalid-email"
+        ) {
+
+            errorMessage =
+                "❌ Email si sahihi.";
+
+        }
+
+
+        else if (
+            error.code ===
+            "auth/weak-password"
+        ) {
+
+            errorMessage =
+                "❌ Password ni dhaifu. Tumia angalau characters 6.";
+
+        }
+
+
+        else if (
+            error.code ===
+            "permission-denied"
+        ) {
+
+            errorMessage =
+                "❌ Firebase imezuia kuhifadhi profile. Tunahitaji kurekebisha Firestore Rules.";
+
+        }
+
+
+
+        message.textContent =
+            errorMessage;
+
+
+        alert(
+            errorMessage
+        );
+
+
+        registerButton.disabled =
+            false;
+
+
+        registerButton.textContent =
+            "✅ Jisajili";
+
+    }
+
+};
+
+</script>
+
 
 </body>
 
