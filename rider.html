@@ -1,126 +1,231 @@
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>SokoHub - Rider Dashboard</title>
+    <title>SokoHub Rider Dashboard</title>
 
-<style>
-* {
-    box-sizing: border-box;
-}
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f6f8;
-    color: #222;
-}
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
 
-header {
-    background: #0b7a3b;
-    color: white;
-    padding: 18px;
-    text-align: center;
-}
+        header {
+            background: #111827;
+            color: white;
+            padding: 18px;
+            text-align: center;
+        }
 
-.container {
-    width: 94%;
-    max-width: 900px;
-    margin: 20px auto;
-}
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
 
-.card {
-    background: white;
-    border-radius: 12px;
-    padding: 18px;
-    margin-bottom: 16px;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-}
+        header p {
+            margin: 6px 0 0;
+            color: #d1d5db;
+        }
 
-h2, h3 {
-    margin-top: 0;
-}
+        .container {
+            width: 95%;
+            max-width: 900px;
+            margin: 20px auto;
+        }
 
-.info {
-    line-height: 1.7;
-}
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
 
-.order {
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    padding: 15px;
-    margin-top: 15px;
-}
+        .card h2 {
+            margin-top: 0;
+        }
 
-.status {
-    display: inline-block;
-    padding: 6px 10px;
-    border-radius: 20px;
-    background: #eee;
-    font-size: 13px;
-    margin: 5px 0;
-}
+        .rider-info {
+            line-height: 1.8;
+        }
 
-button {
-    border: none;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin: 5px 3px;
-    font-size: 15px;
-    cursor: pointer;
-}
+        .online {
+            color: #16a34a;
+            font-weight: bold;
+        }
 
-.btn-green {
-    background: #0b7a3b;
-    color: white;
-}
+        .offline {
+            color: #dc2626;
+            font-weight: bold;
+        }
 
-.btn-blue {
-    background: #1976d2;
-    color: white;
-}
+        .gps-box {
+            border-left: 5px solid #2563eb;
+            background: #eff6ff;
+        }
 
-.btn-orange {
-    background: #ef6c00;
-    color: white;
-}
+        .gps-status {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
 
-.btn-red {
-    background: #d32f2f;
-    color: white;
-}
+        .order {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 15px;
+            background: #fafafa;
+        }
 
-.btn-gray {
-    background: #555;
-    color: white;
-}
+        .order h3 {
+            margin-top: 0;
+            color: #111827;
+        }
 
-.location-box {
-    background: #eef8f1;
-    border: 1px solid #b8dfc5;
-    padding: 14px;
-    border-radius: 10px;
-    margin-top: 15px;
-}
+        .order-info {
+            line-height: 1.7;
+        }
 
-.empty {
-    text-align: center;
-    padding: 25px;
-    color: #777;
-}
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            background: #fef3c7;
+            color: #92400e;
+            font-weight: bold;
+            font-size: 13px;
+            margin: 5px 0;
+        }
 
-.loading {
-    text-align: center;
-    padding: 20px;
-}
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin: 5px 5px 5px 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
 
-.small {
-    font-size: 13px;
-    color: #666;
-}
-</style>
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-claim {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-pickup {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-start {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-complete {
+            background: #7c3aed;
+            color: white;
+        }
+
+        .btn-refresh {
+            background: #374151;
+            color: white;
+        }
+
+        .btn-home {
+            background: #0f766e;
+            color: white;
+        }
+
+        .btn-logout {
+            background: #dc2626;
+            color: white;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 25px;
+            color: #666;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat {
+            background: #f3f4f6;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 25px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        @media (max-width: 600px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            button {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -134,51 +239,82 @@ button {
 
     <!-- RIDER INFORMATION -->
     <div class="card">
-
         <h2>👤 Taarifa za Rider</h2>
 
-        <div class="info">
-            <div>
-                🟢 <strong>Rider ame-login</strong>
+        <div class="rider-info">
+            <div id="loginStatus">
+                ⏳ Inaangalia login...
             </div>
 
             <div>
                 <strong>Rider UID:</strong>
-                <span id="riderUID">...</span>
+                <span id="riderUid">-</span>
             </div>
 
             <div>
                 <strong>Email:</strong>
-                <span id="riderEmail">...</span>
+                <span id="riderEmail">-</span>
             </div>
         </div>
 
         <br>
 
-        <button class="btn-gray" onclick="goHome()">
+        <button class="btn-home" onclick="goHome()">
             🏠 Home
         </button>
 
-        <button class="btn-red" onclick="logout()">
+        <button class="btn-logout" onclick="logout()">
             🚪 Logout
         </button>
-
     </div>
 
 
     <!-- GPS STATUS -->
-    <div class="card">
+    <div class="card gps-box">
 
-        <h3>📍 GPS Status</h3>
+        <h2>📍 GPS Status</h2>
 
-        <div id="gpsStatus" class="location-box">
+        <div id="gpsStatus" class="gps-status">
             📍 GPS haijaanza
         </div>
 
-        <p class="small">
+        <div id="gpsDetails">
             GPS itaanza unapobonyeza
-            <strong>Anza Delivery + GPS</strong>.
-        </p>
+            <strong>ANZA DELIVERY + GPS</strong>.
+        </div>
+
+    </div>
+
+
+    <!-- STATISTICS -->
+    <div class="card">
+
+        <h2>📊 Delivery Summary</h2>
+
+        <div class="stats">
+
+            <div class="stat">
+                <div id="availableCount" class="stat-number">0</div>
+                <div class="stat-label">
+                    Oda Zinazopatikana
+                </div>
+            </div>
+
+            <div class="stat">
+                <div id="myOrderCount" class="stat-number">0</div>
+                <div class="stat-label">
+                    Oda Zangu
+                </div>
+            </div>
+
+            <div class="stat">
+                <div id="activeCount" class="stat-number">0</div>
+                <div class="stat-label">
+                    Deliveries Active
+                </div>
+            </div>
+
+        </div>
 
     </div>
 
@@ -188,8 +324,24 @@ button {
 
         <h2>📦 Oda za Delivery</h2>
 
-        <div id="ordersContainer" class="loading">
-            Inapakia oda...
+        <button
+            id="refreshBtn"
+            class="btn-refresh"
+            onclick="loadOrders()"
+        >
+            🔄 Refresh Orders
+        </button>
+
+        <div id="message" class="message"></div>
+
+        <div id="ordersContainer">
+            <div class="loading">
+                ⏳ Inapakia oda...
+            </div>
+        </div>
+
+        <div id="firestoreInfo"
+             style="margin-top:15px;color:#666;font-size:13px;">
         </div>
 
     </div>
@@ -199,386 +351,650 @@ button {
 
 <script type="module">
 
-import { auth, db } from "./firebase.js";
+    import {
+        auth,
+        db
+    } from "./firebase.js";
 
-import {
-    onAuthStateChanged,
-    signOut
-} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+    import {
+        onAuthStateChanged,
+        signOut
+    } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
-import {
-    collection,
-    getDocs,
-    doc,
-    updateDoc,
-    serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
-
-
-let currentRider = null;
+    import {
+        collection,
+        getDocs,
+        doc,
+        updateDoc,
+        serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 
-/* ==================================================
-   AUTH CHECK
-================================================== */
+    let currentRider = null;
 
-onAuthStateChanged(auth, async (user) => {
 
-    if (!user) {
+    /* =========================================
+       AUTH CHECK
+    ========================================= */
 
-        window.location.href = "login.html";
-        return;
+    onAuthStateChanged(auth, async (user) => {
+
+        if (!user) {
+
+            document.getElementById("loginStatus").innerHTML =
+                `<span class="offline">
+                    🔴 Rider haja-login
+                </span>`;
+
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1200);
+
+            return;
+        }
+
+
+        currentRider = user;
+
+
+        document.getElementById("loginStatus").innerHTML =
+            `<span class="online">
+                🟢 Rider ame-login
+            </span>`;
+
+
+        document.getElementById("riderUid").textContent =
+            user.uid;
+
+
+        document.getElementById("riderEmail").textContent =
+            user.email || "-";
+
+
+        console.log("CURRENT RIDER UID:", user.uid);
+
+
+        await loadOrders();
+
+    });
+
+
+    /* =========================================
+       SHOW MESSAGE
+    ========================================= */
+
+    function showMessage(text, type = "info") {
+
+        const box = document.getElementById("message");
+
+        box.textContent = text;
+
+        box.className = "message " + type;
+
+        box.style.display = "block";
+
+
+        setTimeout(() => {
+
+            box.style.display = "none";
+
+        }, 5000);
 
     }
 
-    currentRider = user;
 
-    document.getElementById("riderUID").textContent =
-        user.uid;
+    /* =========================================
+       LOAD ORDERS
+    ========================================= */
 
-    document.getElementById("riderEmail").textContent =
-        user.email || "Hakuna email";
+    window.loadOrders = async function () {
 
-    await loadRiderOrders(user.uid);
-
-});
-
-
-/* ==================================================
-   LOAD RIDER ORDERS
-================================================== */
-
-async function loadRiderOrders(riderUID) {
-
-    const container =
-        document.getElementById("ordersContainer");
-
-    container.innerHTML =
-        `<div class="loading">⏳ Inatafuta oda...</div>`;
-
-    try {
-
-        const snapshot =
-            await getDocs(
-                collection(db, "orders")
-            );
-
-        let orders = [];
-
-        snapshot.forEach((orderDoc) => {
-
-            const order =
-                orderDoc.data();
-
-            const orderId =
-                orderDoc.id;
+        if (!currentRider) {
+            return;
+        }
 
 
-            /*
-             AVAILABLE ORDERS
-            */
-
-            const available =
-                (
-                    (
-                        order.status === "confirmed" ||
-                        order.status === "ready" ||
-                        order.status === "ready_for_pickup" ||
-                        order.status === "accepted"
-                    )
-                    &&
-                    !order.riderId
-                );
+        const container =
+            document.getElementById("ordersContainer");
 
 
-            /*
-             MY ACTIVE ORDERS
-            */
-
-            const myOrder =
-                (
-                    order.riderId === riderUID &&
-                    (
-                        order.status === "picked_up" ||
-                        order.status === "on_the_way"
-                    )
-                );
+        container.innerHTML =
+            `<div class="loading">
+                ⏳ Inasoma oda kutoka Firestore...
+            </div>`;
 
 
-            if (available || myOrder) {
+        try {
+
+            const snapshot =
+                await getDocs(collection(db, "orders"));
+
+
+            const orders = [];
+
+
+            snapshot.forEach((item) => {
 
                 orders.push({
-                    id: orderId,
-                    data: order
+                    id: item.id,
+                    ...item.data()
+                });
+
+            });
+
+
+            console.log(
+                "Firestore orders:",
+                orders
+            );
+
+
+            /*
+             * AVAILABLE ORDERS
+             *
+             * Oda inaweza kuwa available kama:
+             *
+             * confirmed
+             * ready
+             * ready_for_pickup
+             * accepted
+             *
+             * na haijapewa rider mwingine.
+             */
+
+            const availableOrders =
+                orders.filter(order => {
+
+                    const availableStatus = [
+                        "confirmed",
+                        "ready",
+                        "ready_for_pickup",
+                        "accepted"
+                    ].includes(order.status);
+
+
+                    const noRider =
+                        !order.riderId;
+
+
+                    return availableStatus && noRider;
+
+                });
+
+
+            /*
+             * MY ORDERS
+             *
+             * Tunatumia UID ya rider aliye-login.
+             *
+             * Hakuna UID hard-coded hapa.
+             */
+
+            const myOrders =
+                orders.filter(order => {
+
+                    return order.riderId === currentRider.uid;
+
+                });
+
+
+            /*
+             * ACTIVE DELIVERY
+             */
+
+            const activeOrders =
+                myOrders.filter(order => {
+
+                    return [
+                        "picked_up",
+                        "on_the_way"
+                    ].includes(order.status);
+
+                });
+
+
+            /*
+             * UPDATE STATS
+             */
+
+            document.getElementById("availableCount")
+                .textContent =
+                availableOrders.length;
+
+
+            document.getElementById("myOrderCount")
+                .textContent =
+                myOrders.length;
+
+
+            document.getElementById("activeCount")
+                .textContent =
+                activeOrders.length;
+
+
+            /*
+             * DISPLAY ORDERS
+             */
+
+            let html = "";
+
+
+            /*
+             * AVAILABLE
+             */
+
+            if (availableOrders.length > 0) {
+
+                html += `
+                    <h3>
+                        🆕 Oda Zinazopatikana
+                    </h3>
+                `;
+
+
+                availableOrders.forEach(order => {
+
+                    html += createAvailableOrderHTML(order);
+
                 });
 
             }
 
-        });
+
+            /*
+             * MY ORDERS
+             */
+
+            if (myOrders.length > 0) {
+
+                html += `
+                    <h3 style="margin-top:25px;">
+                        🏍️ Oda Zangu
+                    </h3>
+                `;
 
 
-        /*
-        NEWEST FIRST
-        */
+                myOrders.forEach(order => {
 
-        orders.sort((a, b) => {
+                    html += createMyOrderHTML(order);
 
-            const timeA =
-                a.data.createdAt?.seconds || 0;
+                });
 
-            const timeB =
-                b.data.createdAt?.seconds || 0;
-
-            return timeB - timeA;
-
-        });
+            }
 
 
-        container.innerHTML = "";
+            if (!html) {
+
+                html = `
+                    <div class="empty">
+                        <h3>📦 Hakuna oda kwa sasa.</h3>
+
+                        <p>
+                            Mfumo umeangalia
+                            <strong>${orders.length}</strong>
+                            oda kwenye Firestore.
+                        </p>
+
+                        <p>
+                            Oda mpya itaonekana hapa
+                            ikiwa seller ameweka status
+                            <strong>ready_for_pickup</strong>
+                            bila riderId.
+                        </p>
+                    </div>
+                `;
+
+            }
 
 
-        if (orders.length === 0) {
+            container.innerHTML = html;
+
+
+            document.getElementById("firestoreInfo")
+                .textContent =
+                `Mfumo umeangalia ${orders.length} oda kwenye Firestore.`;
+
+
+        } catch (error) {
+
+            console.error(
+                "LOAD ORDERS ERROR:",
+                error
+            );
+
 
             container.innerHTML = `
                 <div class="empty">
-                    📦 Hakuna oda kwa sasa.
+                    ❌ Imeshindikana kupakia oda.
                     <br><br>
-                    Mfumo umeangalia
-                    <strong>${snapshot.size}</strong>
-                    oda kwenye Firestore.
+                    ${error.message}
                 </div>
             `;
+
+
+            showMessage(
+                "Imeshindikana kusoma oda: " +
+                error.message,
+                "error"
+            );
+
+        }
+
+    };
+
+
+    /* =========================================
+       AVAILABLE ORDER HTML
+    ========================================= */
+
+    function createAvailableOrderHTML(order) {
+
+        const location =
+            order.deliveryLocation || "Haijawekwa";
+
+
+        const phone =
+            order.phone || "Haijawekwa";
+
+
+        const total =
+            order.total !== undefined
+                ? Number(order.total).toLocaleString()
+                : "0";
+
+
+        return `
+
+            <div class="order">
+
+                <h3>
+                    📦 Oda #${escapeHTML(order.id)}
+                </h3>
+
+                <div class="order-info">
+
+                    <strong>Status:</strong><br>
+
+                    <span class="status">
+                        ${escapeHTML(order.status || "pending")}
+                    </span>
+
+                    <br>
+
+                    <strong>📍 Delivery:</strong>
+                    ${escapeHTML(location)}
+
+                    <br>
+
+                    <strong>📞 Simu:</strong>
+                    ${escapeHTML(phone)}
+
+                    <br>
+
+                    <strong>💰 Total:</strong>
+                    TZS ${total}
+
+                </div>
+
+
+                <br>
+
+
+                <button
+                    class="btn-claim"
+                    onclick="claimOrder('${order.id}')"
+                >
+                    🤝 CLAIM ORDER
+                </button>
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* =========================================
+       MY ORDER HTML
+    ========================================= */
+
+    function createMyOrderHTML(order) {
+
+        const location =
+            order.deliveryLocation || "Haijawekwa";
+
+
+        const phone =
+            order.phone || "Haijawekwa";
+
+
+        const total =
+            order.total !== undefined
+                ? Number(order.total).toLocaleString()
+                : "0";
+
+
+        let buttons = "";
+
+
+        /*
+         * PICKED UP
+         */
+
+        if (order.status === "picked_up") {
+
+            buttons += `
+
+                <button
+                    class="btn-start"
+                    onclick="startDelivery('${order.id}')"
+                >
+                    🚀 ANZA DELIVERY + GPS
+                </button>
+
+            `;
+
+        }
+
+
+        /*
+         * ON THE WAY
+         */
+
+        if (order.status === "on_the_way") {
+
+            buttons += `
+
+                <button
+                    class="btn-start"
+                    onclick="openTracking('${order.id}')"
+                >
+                    📍 OPEN LIVE TRACKING
+                </button>
+
+
+                <button
+                    class="btn-complete"
+                    onclick="completeDelivery('${order.id}')"
+                >
+                    ✅ COMPLETE DELIVERY
+                </button>
+
+            `;
+
+        }
+
+
+        /*
+         * READY / ACCEPTED
+         *
+         * Kama rider ameshapewa oda na seller,
+         * rider anaweza ku-PICK UP.
+         */
+
+        if (
+            order.status === "ready" ||
+            order.status === "ready_for_pickup" ||
+            order.status === "accepted"
+        ) {
+
+            buttons += `
+
+                <button
+                    class="btn-pickup"
+                    onclick="pickupOrder('${order.id}')"
+                >
+                    📦 PICK UP
+                </button>
+
+            `;
+
+        }
+
+
+        return `
+
+            <div class="order">
+
+                <h3>
+                    🏍️ Oda #${escapeHTML(order.id)}
+                </h3>
+
+
+                <div class="order-info">
+
+                    <strong>Status:</strong><br>
+
+                    <span class="status">
+                        ${escapeHTML(order.status || "pending")}
+                    </span>
+
+                    <br>
+
+                    <strong>📍 Delivery:</strong>
+                    ${escapeHTML(location)}
+
+                    <br>
+
+                    <strong>📞 Simu:</strong>
+                    ${escapeHTML(phone)}
+
+                    <br>
+
+                    <strong>💰 Total:</strong>
+                    TZS ${total}
+
+                </div>
+
+
+                <br>
+
+                ${buttons}
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* =========================================
+       CLAIM ORDER
+    ========================================= */
+
+    window.claimOrder = async function (orderId) {
+
+        if (!currentRider) {
+
+            showMessage(
+                "Rider haja-login.",
+                "error"
+            );
 
             return;
 
         }
 
 
-        orders.forEach((item) => {
+        try {
 
-            displayOrder(
-                item.id,
-                item.data
+            const orderRef =
+                doc(db, "orders", orderId);
+
+
+            /*
+             * Assign current logged-in rider.
+             */
+
+            await updateDoc(orderRef, {
+
+                riderId: currentRider.uid,
+
+                riderAssignedAt:
+                    serverTimestamp(),
+
+                riderAssignedEmail:
+                    currentRider.email || null,
+
+                status:
+                    "accepted"
+
+            });
+
+
+            showMessage(
+                "✅ Oda imepewa rider huyu.",
+                "success"
             );
 
-        });
 
+            await loadOrders();
 
-    } catch (error) {
 
-        console.error(error);
+        } catch (error) {
 
-        container.innerHTML = `
-            <div class="empty">
-                ❌ Imeshindikana kupakia oda.
-                <br><br>
-                ${error.message}
-            </div>
-        `;
+            console.error(
+                "CLAIM ERROR:",
+                error
+            );
 
-    }
 
-}
+            showMessage(
+                "❌ Imeshindikana kuchukua oda: " +
+                error.message,
+                "error"
+            );
 
+        }
 
-/* ==================================================
-   DISPLAY ORDER
-================================================== */
+    };
 
-function displayOrder(orderId, order) {
 
-    const container =
-        document.getElementById("ordersContainer");
+    /* =========================================
+       PICK UP ORDER
+    ========================================= */
 
+    window.pickupOrder = async function (orderId) {
 
-    const orderDiv =
-        document.createElement("div");
+        if (!currentRider) {
 
-    orderDiv.className = "order";
+            showMessage(
+                "Rider haja-login.",
+                "error"
+            );
 
+            return;
 
-    let actionButton = "";
+        }
 
 
-    /*
-    ORDER READY FOR PICKUP
-    */
+        try {
 
-    if (
-        order.status === "confirmed" ||
-        order.status === "ready" ||
-        order.status === "ready_for_pickup"
-    ) {
+            const orderRef =
+                doc(db, "orders", orderId);
 
-        actionButton = `
-            <button
-                class="btn-green"
-                onclick="pickupOrder('${orderId}')">
 
-                📦 CHUKUA ODA
-
-            </button>
-        `;
-
-    }
-
-
-    /*
-    PICKED UP
-    */
-
-    else if (
-        order.status === "picked_up" &&
-        order.riderId === currentRider.uid
-    ) {
-
-        actionButton = `
-            <button
-                class="btn-orange"
-                onclick="startDelivery('${orderId}')">
-
-                🚴 ANZA DELIVERY + GPS
-
-            </button>
-        `;
-
-    }
-
-
-    /*
-    ALREADY ON THE WAY
-    */
-
-    else if (
-        order.status === "on_the_way" &&
-        order.riderId === currentRider.uid
-    ) {
-
-        actionButton = `
-            <button
-                class="btn-blue"
-                onclick="openTracking('${orderId}')">
-
-                📍 ENDELEA LIVE GPS
-
-            </button>
-
-            <button
-                class="btn-green"
-                onclick="completeDelivery('${orderId}')">
-
-                ✅ MFIKISHE CUSTOMER
-
-            </button>
-        `;
-
-    }
-
-
-    /*
-    RIDER LOCATION
-    */
-
-    let locationHTML = "";
-
-    if (order.riderLocation) {
-
-        locationHTML = `
-            <div class="location-box">
-
-                📍 Rider Location
-
-                <br>
-
-                Latitude:
-                ${order.riderLocation.latitude}
-
-                <br>
-
-                Longitude:
-                ${order.riderLocation.longitude}
-
-            </div>
-        `;
-
-    }
-
-
-    orderDiv.innerHTML = `
-
-        <h3>📦 Oda #${orderId}</h3>
-
-        <div>
-            <span class="status">
-                Status:
-                <strong>
-                    ${order.status || "unknown"}
-                </strong>
-            </span>
-        </div>
-
-        <p>
-            👤 Customer:
-            <strong>
-                ${order.customerName || "Customer"}
-            </strong>
-        </p>
-
-        <p>
-            📞 Simu:
-            ${order.phone || "Haijawekwa"}
-        </p>
-
-        <p>
-            📍 Delivery:
-            ${order.deliveryLocation || "Haijawekwa"}
-        </p>
-
-        <p>
-            💰 Jumla:
-            <strong>
-                TZS ${Number(order.total || 0).toLocaleString()}
-            </strong>
-        </p>
-
-        <p>
-            💳 Payment:
-            ${order.paymentMethod || "Haijawekwa"}
-        </p>
-
-        ${locationHTML}
-
-        <div>
-            ${actionButton}
-        </div>
-
-    `;
-
-
-    container.appendChild(orderDiv);
-
-}
-
-
-/* ==================================================
-   PICKUP ORDER
-================================================== */
-
-window.pickupOrder = async function(orderId) {
-
-    if (!currentRider) {
-
-        alert("Rider haja-login.");
-        return;
-
-    }
-
-
-    try {
-
-        await updateDoc(
-            doc(db, "orders", orderId),
-            {
+            await updateDoc(orderRef, {
 
                 riderId:
                     currentRider.uid,
@@ -586,339 +1002,404 @@ window.pickupOrder = async function(orderId) {
                 status:
                     "picked_up",
 
-                riderAssignedAt:
-                    serverTimestamp()
-
-            }
-        );
-
-
-        alert(
-            "✅ Oda imechukuliwa.\n\n" +
-            "Sasa bonyeza ANZA DELIVERY + GPS."
-        );
-
-
-        await loadRiderOrders(
-            currentRider.uid
-        );
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert(
-            "❌ Imeshindikana kuchukua oda:\n" +
-            error.message
-        );
-
-    }
-
-};
-
-
-/* ==================================================
-   START DELIVERY
-================================================== */
-
-window.startDelivery = async function(orderId) {
-
-    if (!currentRider) {
-
-        alert("Rider haja-login.");
-        return;
-
-    }
-
-
-    /*
-    CHECK GPS SUPPORT
-    */
-
-    if (!navigator.geolocation) {
-
-        alert(
-            "❌ Simu/browser hii hai-support GPS."
-        );
-
-        return;
-
-    }
-
-
-    /*
-    CHECK HTTPS
-    */
-
-    if (
-        !window.isSecureContext &&
-        location.hostname !== "localhost" &&
-        location.hostname !== "127.0.0.1"
-    ) {
-
-        alert(
-            "❌ GPS inahitaji HTTPS.\n\n" +
-            "Tumia GitHub Pages yenye HTTPS."
-        );
-
-        return;
-
-    }
-
-
-    try {
-
-        document.getElementById("gpsStatus").innerHTML =
-            "📍 Inathibitisha GPS...";
-
-
-        /*
-        GET FIRST LOCATION
-        */
-
-        const position =
-            await getCurrentPosition();
-
-
-        const coords =
-            position.coords;
-
-
-        const latitude =
-            coords.latitude;
-
-        const longitude =
-            coords.longitude;
-
-        const accuracy =
-            coords.accuracy;
-
-
-        /*
-        SAVE INITIAL LOCATION
-        */
-
-        await updateDoc(
-            doc(db, "orders", orderId),
-            {
-
-                status:
-                    "on_the_way",
-
-                riderId:
-                    currentRider.uid,
-
-                riderLocation: {
-
-                    latitude:
-                        latitude,
-
-                    longitude:
-                        longitude,
-
-                    accuracy:
-                        accuracy,
-
-                    speed:
-                        coords.speed,
-
-                    heading:
-                        coords.heading
-
-                },
-
-                locationUpdatedAt:
+                pickedUpAt:
                     serverTimestamp(),
 
-                deliveryStartedAt:
-                    serverTimestamp()
-
-            }
-        );
-
-
-        document.getElementById("gpsStatus").innerHTML = `
-            🟢 GPS imewashwa
-            <br>
-            Latitude: ${latitude}
-            <br>
-            Longitude: ${longitude}
-            <br>
-            Accuracy: ${Math.round(accuracy)} m
-        `;
-
-
-        /*
-        OPEN LOCATION PAGE
-        */
-
-        window.location.href =
-            "location.html?orderId=" +
-            encodeURIComponent(orderId);
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        document.getElementById("gpsStatus").innerHTML =
-            "🔴 GPS haijaanza";
-
-        alert(
-            "❌ Imeshindikana kuanza GPS.\n\n" +
-            error.message
-        );
-
-    }
-
-};
-
-
-/* ==================================================
-   GET CURRENT POSITION
-================================================== */
-
-function getCurrentPosition() {
-
-    return new Promise((resolve, reject) => {
-
-        navigator.geolocation.getCurrentPosition(
-
-            resolve,
-
-            reject,
-
-            {
-                enableHighAccuracy: true,
-                timeout: 20000,
-                maximumAge: 0
-            }
-
-        );
-
-    });
-
-}
-
-
-/* ==================================================
-   OPEN TRACKING
-================================================== */
-
-window.openTracking = function(orderId) {
-
-    window.location.href =
-        "location.html?orderId=" +
-        encodeURIComponent(orderId);
-
-};
-
-
-/* ==================================================
-   COMPLETE DELIVERY
-================================================== */
-
-window.completeDelivery = async function(orderId) {
-
-    if (!currentRider) {
-
-        alert("Rider haja-login.");
-        return;
-
-    }
-
-
-    const confirmDelivery =
-        confirm(
-            "Una uhakika umefikisha oda kwa customer?"
-        );
-
-
-    if (!confirmDelivery) {
-        return;
-    }
-
-
-    try {
-
-        await updateDoc(
-            doc(db, "orders", orderId),
-            {
-
-                status:
-                    "delivered",
-
-                deliveredAt:
-                    serverTimestamp(),
-
-                deliveryCompletedBy:
+                pickedUpBy:
                     currentRider.uid
 
+            });
+
+
+            showMessage(
+                "📦 Oda imechukuliwa. Sasa unaweza kuanza delivery + GPS.",
+                "success"
+            );
+
+
+            await loadOrders();
+
+
+        } catch (error) {
+
+            console.error(
+                "PICKUP ERROR:",
+                error
+            );
+
+
+            showMessage(
+                "❌ Imeshindikana ku-pick up oda: " +
+                error.message,
+                "error"
+            );
+
+        }
+
+    };
+
+
+    /* =========================================
+       START DELIVERY + GPS
+    ========================================= */
+
+    window.startDelivery = async function (orderId) {
+
+        if (!currentRider) {
+
+            showMessage(
+                "Rider haja-login.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * Check GPS support.
+         */
+
+        if (!navigator.geolocation) {
+
+            showMessage(
+                "❌ Simu/browser yako haisapoti GPS.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * GitHub Pages must use HTTPS.
+         */
+
+        if (
+            !window.isSecureContext &&
+            location.hostname !== "localhost"
+        ) {
+
+            showMessage(
+                "❌ GPS inahitaji HTTPS. Fungua SokoHub kupitia GitHub Pages.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            showMessage(
+                "📍 Inaomba GPS location...",
+                "info"
+            );
+
+
+            const position =
+                await getCurrentPosition();
+
+
+            const coords =
+                position.coords;
+
+
+            const latitude =
+                coords.latitude;
+
+
+            const longitude =
+                coords.longitude;
+
+
+            const accuracy =
+                coords.accuracy;
+
+
+            /*
+             * Save first GPS position.
+             */
+
+            await updateDoc(
+                doc(db, "orders", orderId),
+                {
+
+                    status:
+                        "on_the_way",
+
+                    riderId:
+                        currentRider.uid,
+
+                    riderLocation: {
+
+                        latitude:
+                            latitude,
+
+                        longitude:
+                            longitude,
+
+                        accuracy:
+                            accuracy,
+
+                        speed:
+                            coords.speed ?? null,
+
+                        heading:
+                            coords.heading ?? null
+
+                    },
+
+                    locationUpdatedAt:
+                        serverTimestamp(),
+
+                    deliveryStartedAt:
+                        serverTimestamp()
+
+                }
+            );
+
+
+            /*
+             * Redirect to tracking page.
+             */
+
+            window.location.href =
+                "tracking.html?orderId=" +
+                encodeURIComponent(orderId);
+
+
+        } catch (error) {
+
+            console.error(
+                "START DELIVERY ERROR:",
+                error
+            );
+
+
+            let message =
+                "❌ Imeshindikana kuanza delivery: " +
+                error.message;
+
+
+            if (
+                error.message &&
+                error.message.toLowerCase()
+                    .includes("denied")
+            ) {
+
+                message =
+                    "❌ GPS imekataliwa. " +
+                    "Nenda Android Settings → Apps → Chrome → Permissions → Location → Allow while using the app, kisha jaribu tena.";
+
+            }
+
+
+            showMessage(
+                message,
+                "error"
+            );
+
+        }
+
+    };
+
+
+    /* =========================================
+       GET CURRENT GPS
+    ========================================= */
+
+    function getCurrentPosition() {
+
+        return new Promise(
+            (resolve, reject) => {
+
+                navigator.geolocation.getCurrentPosition(
+
+                    resolve,
+
+                    reject,
+
+                    {
+
+                        enableHighAccuracy:
+                            true,
+
+                        timeout:
+                            20000,
+
+                        maximumAge:
+                            0
+
+                    }
+
+                );
+
             }
         );
 
-
-        alert(
-            "✅ Delivery imekamilika!"
-        );
-
-
-        await loadRiderOrders(
-            currentRider.uid
-        );
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert(
-            "❌ Imeshindikana kukamilisha delivery:\n" +
-            error.message
-        );
-
     }
 
-};
 
+    /* =========================================
+       OPEN TRACKING
+    ========================================= */
 
-/* ==================================================
-   LOGOUT
-================================================== */
-
-window.logout = async function() {
-
-    try {
-
-        await signOut(auth);
+    window.openTracking = function (orderId) {
 
         window.location.href =
-            "login.html";
+            "tracking.html?orderId=" +
+            encodeURIComponent(orderId);
 
-    } catch (error) {
+    };
 
-        alert(
-            "Logout error: " +
-            error.message
-        );
+
+    /* =========================================
+       COMPLETE DELIVERY
+    ========================================= */
+
+    window.completeDelivery = async function (orderId) {
+
+        if (!currentRider) {
+
+            showMessage(
+                "Rider haja-login.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const confirmDelivery =
+            confirm(
+                "Una uhakika umefikisha oda hii kwa mteja?"
+            );
+
+
+        if (!confirmDelivery) {
+            return;
+        }
+
+
+        try {
+
+            await updateDoc(
+                doc(db, "orders", orderId),
+                {
+
+                    status:
+                        "delivered",
+
+                    deliveredAt:
+                        serverTimestamp(),
+
+                    deliveryCompletedBy:
+                        currentRider.uid,
+
+                    deliveryCompletedEmail:
+                        currentRider.email || null
+
+                }
+            );
+
+
+            showMessage(
+                "✅ Delivery imekamilika.",
+                "success"
+            );
+
+
+            await loadOrders();
+
+
+        } catch (error) {
+
+            console.error(
+                "COMPLETE DELIVERY ERROR:",
+                error
+            );
+
+
+            showMessage(
+                "❌ Imeshindikana kumaliza delivery: " +
+                error.message,
+                "error"
+            );
+
+        }
+
+    };
+
+
+    /* =========================================
+       LOGOUT
+    ========================================= */
+
+    window.logout = async function () {
+
+        try {
+
+            await signOut(auth);
+
+            window.location.href =
+                "login.html";
+
+        } catch (error) {
+
+            console.error(
+                "LOGOUT ERROR:",
+                error
+            );
+
+            alert(
+                "Logout failed: " +
+                error.message
+            );
+
+        }
+
+    };
+
+
+    /* =========================================
+       HOME
+    ========================================= */
+
+    window.goHome = function () {
+
+        window.location.href =
+            "home.html";
+
+    };
+
+
+    /* =========================================
+       HTML ESCAPE
+    ========================================= */
+
+    function escapeHTML(value) {
+
+        if (value === null ||
+            value === undefined) {
+
+            return "";
+
+        }
+
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
 
     }
-
-};
-
-
-/* ==================================================
-   HOME
-================================================== */
-
-window.goHome = function() {
-
-    window.location.href =
-        "home.html";
-
-};
-
 
 </script>
 
