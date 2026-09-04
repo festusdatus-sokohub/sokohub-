@@ -1,678 +1,452 @@
 <!DOCTYPE html>
 <html lang="sw">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
-
-<title>SokoHub - Live Rider Tracking</title>
-
-<style>
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-
-    font-family:
-        Arial,
-        sans-serif;
-
-    background: #f5f5f5;
-
-    color: #222;
-
-}
-
-.container {
-
-    max-width: 900px;
-
-    margin: 20px auto;
-
-    padding: 15px;
-
-}
-
-.card {
-
-    background: white;
-
-    padding: 20px;
-
-    margin-bottom: 18px;
-
-    border-radius: 12px;
-
-    box-shadow:
-        0 3px 10px
-        rgba(0,0,0,0.08);
-
-}
-
-header {
-
-    background: #0b7a3b;
-
-    color: white;
-
-    padding: 20px;
-
-    text-align: center;
-
-    border-radius: 12px;
-
-    margin-bottom: 18px;
-
-}
-
-header h1 {
-
-    margin-bottom: 8px;
-
-}
-
-.status {
-
-    padding: 15px;
-
-    border-radius: 10px;
-
-    margin-top: 15px;
-
-    font-weight: bold;
-
-}
-
-.status.info {
-
-    background: #e3f2fd;
-
-    color: #1565c0;
-
-}
-
-.status.success {
-
-    background: #e8f5e9;
-
-    color: #2e7d32;
-
-}
-
-.status.error {
-
-    background: #ffebee;
-
-    color: #c62828;
-
-}
-
-.status.warning {
-
-    background: #fff3e0;
-
-    color: #ef6c00;
-
-}
-
-.stats-grid {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(180px, 1fr)
-        );
-
-    gap: 12px;
-
-    margin-top: 15px;
-
-}
-
-.stat {
-
-    padding: 18px;
-
-    border-radius: 10px;
-
-    background: #f1f1f1;
-
-}
-
-.stat-label {
-
-    font-size: 13px;
-
-    color: #666;
-
-    margin-bottom: 8px;
-
-}
-
-.stat-value {
-
-    font-size: 21px;
-
-    font-weight: bold;
-
-    word-break: break-word;
-
-}
-
-.location-box {
-
-    background: #f8f8f8;
-
-    padding: 15px;
-
-    border-radius: 10px;
-
-    margin-top: 15px;
-
-    line-height: 1.9;
-
-}
-
-button {
-
-    border: none;
-
-    padding: 13px 18px;
-
-    border-radius: 8px;
-
-    margin: 5px;
-
-    font-weight: bold;
-
-    cursor: pointer;
-
-}
-
-.btn-green {
-
-    background: #0b7a3b;
-
-    color: white;
-
-}
-
-.btn-red {
-
-    background: #d32f2f;
-
-    color: white;
-
-}
-
-.btn-blue {
-
-    background: #1976d2;
-
-    color: white;
-
-}
-
-.btn-gray {
-
-    background: #555;
-
-    color: white;
-
-}
-
-.history {
-
-    max-height: 400px;
-
-    overflow-y: auto;
-
-}
-
-.location-entry {
-
-    background: #fafafa;
-
-    border-left: 4px solid #0b7a3b;
-
-    padding: 12px;
-
-    margin-bottom: 10px;
-
-    border-radius: 6px;
-
-    font-size: 13px;
-
-}
-
-.map {
-
-    width: 100%;
-
-    height: 250px;
-
-    border: 0;
-
-    border-radius: 10px;
-
-    margin-top: 15px;
-
-}
-
-.actions {
-
-    text-align: center;
-
-}
-
-.small {
-
-    color: #777;
-
-    font-size: 13px;
-
-    line-height: 1.6;
-
-}
-
-.hidden {
-
-    display: none;
-
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SokoHub Live GPS</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 15px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,.08);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .order-info {
+            line-height: 1.8;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .info {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .gps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .gps-box {
+            background: #f7f7f7;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #2196f3;
+        }
+
+        .gps-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .gps-value {
+            font-size: 18px;
+            font-weight: bold;
+            word-break: break-word;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            padding: 13px 18px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .start {
+            background: #2e7d32;
+        }
+
+        .stop {
+            background: #c62828;
+        }
+
+        .back {
+            background: #555;
+        }
+
+        .complete {
+            background: #1565c0;
+        }
+
+        button:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        #mapContainer {
+            width: 100%;
+            height: 350px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #ddd;
+        }
+
+        #mapContainer iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .history {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .order-id {
+            font-family: monospace;
+            background: #eee;
+            padding: 5px;
+            border-radius: 5px;
+            word-break: break-all;
+        }
+    </style>
 </head>
-
 
 <body>
 
-
 <div class="container">
 
+    <div class="card">
 
-<header>
+        <h1>📍 SokoHub Live GPS</h1>
 
-    <h1>📍 SokoHub Live GPS</h1>
+        <div id="pageStatus" class="status info">
+            ⏳ Inapakia taarifa za oda...
+        </div>
 
-    <p>Rider Delivery Tracking</p>
+        <h2>📦 Delivery</h2>
 
-</header>
+        <div class="order-info">
 
+            <p>
+                <strong>Order ID:</strong><br>
+                <span id="orderIdDisplay" class="order-id">
+                    --
+                </span>
+            </p>
 
-<!-- ORDER -->
+            <p>
+                <strong>Customer:</strong>
+                <span id="customerName">--</span>
+            </p>
 
-<div class="card">
+            <p>
+                <strong>Phone:</strong>
+                <span id="customerPhone">--</span>
+            </p>
 
-    <h2>📦 Taarifa za Delivery</h2>
+            <p>
+                <strong>Delivery Location:</strong>
+                <span id="deliveryLocation">--</span>
+            </p>
 
-    <div id="orderInfo">
+            <p>
+                <strong>Total:</strong>
+                TZS <span id="orderTotal">--</span>
+            </p>
 
-        ⏳ Inapakia oda...
+            <p>
+                <strong>Status:</strong>
+                <span id="orderStatus">--</span>
+            </p>
 
-    </div>
-
-</div>
-
-
-<!-- GPS -->
-
-<div class="card">
-
-    <h2>📡 GPS Status</h2>
-
-    <div id="gpsStatus"
-         class="status info">
-
-        📍 GPS haijaanza
-
-    </div>
-
-
-    <div class="actions">
-
-        <button
-            class="btn-green"
-            onclick="startTracking()">
-
-            🟢 ANZA LIVE GPS
-
-        </button>
-
-
-        <button
-            class="btn-red"
-            onclick="stopTracking()">
-
-            🔴 SIMAMISHA GPS
-
-        </button>
+        </div>
 
     </div>
 
-</div>
+
+    <div class="card">
+
+        <h2>📡 GPS Status</h2>
+
+        <div id="gpsStatus" class="status info">
+            📍 GPS haijaanza
+        </div>
+
+        <div class="buttons">
+
+            <button
+                id="startBtn"
+                class="start"
+                onclick="startTracking()">
+                🟢 ANZA LIVE GPS
+            </button>
+
+            <button
+                id="stopBtn"
+                class="stop"
+                onclick="stopTracking()"
+                disabled>
+                🔴 SIMAMISHA GPS
+            </button>
+
+            <button
+                class="back"
+                onclick="goBack()">
+                ← RUDI RIDER
+            </button>
+
+            <button
+                id="completeBtn"
+                class="complete"
+                onclick="completeDelivery()">
+                ✅ KAMILISHA DELIVERY
+            </button>
+
+        </div>
+
+    </div>
 
 
-<!-- STATS -->
+    <div class="card">
 
-<div class="card">
+        <h2>📍 Current Location</h2>
 
-    <h2>📊 GPS Information</h2>
+        <div class="gps-grid">
 
-
-    <div class="stats-grid">
-
-
-        <div class="stat">
-
-            <div class="stat-label">
-
-                📍 Latitude
-
+            <div class="gps-box">
+                <div class="gps-label">Latitude</div>
+                <div id="latitude" class="gps-value">--</div>
             </div>
 
-            <div
-                id="currentLat"
-                class="stat-value">
+            <div class="gps-box">
+                <div class="gps-label">Longitude</div>
+                <div id="longitude" class="gps-value">--</div>
+            </div>
 
-                --
+            <div class="gps-box">
+                <div class="gps-label">Accuracy</div>
+                <div id="accuracy" class="gps-value">--</div>
+            </div>
 
+            <div class="gps-box">
+                <div class="gps-label">Speed</div>
+                <div id="speed" class="gps-value">--</div>
+            </div>
+
+            <div class="gps-box">
+                <div class="gps-label">Altitude</div>
+                <div id="altitude" class="gps-value">--</div>
+            </div>
+
+            <div class="gps-box">
+                <div class="gps-label">Last Update</div>
+                <div id="lastUpdate" class="gps-value">--</div>
             </div>
 
         </div>
 
+    </div>
 
-        <div class="stat">
 
-            <div class="stat-label">
+    <div class="card">
 
-                🌎 Longitude
+        <h2>🗺️ Rider Location</h2>
 
+        <div id="mapContainer">
+            <div style="
+                height:100%;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                color:#777;
+            ">
+                📍 Ramani itaonekana GPS ikianza
             </div>
-
-            <div
-                id="currentLng"
-                class="stat-value">
-
-                --
-
-            </div>
-
         </div>
-
-
-        <div class="stat">
-
-            <div class="stat-label">
-
-                🎯 Accuracy
-
-            </div>
-
-            <div
-                id="accuracy"
-                class="stat-value">
-
-                --
-
-            </div>
-
-        </div>
-
-
-        <div class="stat">
-
-            <div class="stat-label">
-
-                🚀 Speed
-
-            </div>
-
-            <div
-                id="speed"
-                class="stat-value">
-
-                --
-
-            </div>
-
-        </div>
-
-
-    </div>
-
-</div>
-
-
-<!-- MAP -->
-
-<div class="card">
-
-    <h2>🗺️ Current Map</h2>
-
-    <div id="mapContainer">
-
-        🗺️ Location itaonekana hapa baada ya GPS kuanza.
-
-    </div>
-
-    <a
-        id="googleMapsLink"
-        href="#"
-        target="_blank">
-
-        🗺️ Fungua Location kwenye Google Maps
-
-    </a>
-
-</div>
-
-
-<!-- HISTORY -->
-
-<div class="card">
-
-    <h2>📍 Location History</h2>
-
-    <div
-        id="history"
-        class="history">
-
-        Hakuna location bado.
-
-    </div>
-
-</div>
-
-
-<!-- ACTIONS -->
-
-<div class="card">
-
-    <div class="actions">
-
-        <button
-            class="btn-gray"
-            onclick="backToRider()">
-
-            ← Rider Dashboard
-
-        </button>
-
-
-        <button
-            class="btn-green"
-            onclick="completeDelivery()">
-
-            ✅ MFIKISHE CUSTOMER
-
-        </button>
-
-    </div>
-
-</div>
-
-
-<div class="card">
-
-    <p class="small">
-
-        ⚠️ Muhimu:
-
-        Ruhusu Chrome kutumia Location.
 
         <br>
 
-        Usifunge ukurasa huu wakati Rider
-        anapeleka oda.
+        <button
+            id="mapsBtn"
+            class="start"
+            onclick="openGoogleMaps()"
+            disabled>
+            🗺️ FUNGUA GOOGLE MAPS
+        </button>
 
-        <br>
+    </div>
 
-        GPS live inaweza kusimama ikiwa
-        browser imefungwa au mfumo wa simu
-        umeizuia kufanya kazi background.
 
-    </p>
+    <div class="card">
 
-</div>
+        <h2>📜 GPS History</h2>
 
+        <div id="history" class="history">
+
+            <p style="text-align:center;color:#888;">
+                Hakuna location bado.
+            </p>
+
+        </div>
+
+    </div>
 
 </div>
 
 
 <script type="module">
 
+    import { auth, db } from "./firebase.js";
 
-/* ==================================================
-   FIREBASE
-================================================== */
+    import {
+        onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
-import {
-
-    auth,
-    db
-
-} from "./firebase.js";
-
-
-import {
-
-    onAuthStateChanged
-
-} from
-"https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+    import {
+        doc,
+        getDoc,
+        updateDoc,
+        serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 
-import {
+    // ==========================================
+    // VARIABLES
+    // ==========================================
 
-    doc,
-    getDoc,
-    updateDoc,
-    serverTimestamp
+    let currentUser = null;
 
-} from
-"https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+    let orderId = null;
 
+    let orderData = null;
 
-/* ==================================================
-   VARIABLES
-================================================== */
+    let watchId = null;
 
-let currentUser = null;
+    let isTracking = false;
 
-let orderId = null;
+    let lastFirestoreUpdate = 0;
 
-let currentOrder = null;
+    let lastCoords = null;
 
-let watchId = null;
-
-let isTracking = false;
-
-let lastFirestoreUpdate = 0;
-
-let locationHistory = [];
+    let locationHistory = [];
 
 
-/* ==================================================
-   GET ORDER ID FROM URL
-================================================== */
+    // ==========================================
+    // GET ORDER ID FROM URL
+    // ==========================================
 
-const params =
-    new URLSearchParams(
+    const params = new URLSearchParams(
         window.location.search
     );
 
-
-orderId =
-    params.get("orderId");
+    orderId = params.get("orderId");
 
 
-/* ==================================================
-   CHECK ORDER ID
-================================================== */
+    // ==========================================
+    // CHECK ORDER ID
+    // ==========================================
 
-if (!orderId) {
+    if (!orderId) {
 
-    document.getElementById(
-        "orderInfo"
-    ).innerHTML = `
+        showPageStatus(
+            "❌ Hakuna Order ID.<br><br>" +
+            "Fungua tracking kupitia " +
+            "<b>ANZA DELIVERY + GPS</b> " +
+            "kwenye Rider Dashboard.",
+            "error"
+        );
 
-        <div class="status error">
+        document.getElementById(
+            "startBtn"
+        ).disabled = true;
 
-            ❌ Hakuna Order ID.
+    } else {
 
-            <br><br>
+        document.getElementById(
+            "orderIdDisplay"
+        ).textContent = orderId;
 
-            Tafadhali fungua tracking kupitia:
-
-            <br><br>
-
-            <strong>
-                🚴 ANZA DELIVERY + GPS
-            </strong>
-
-            <br><br>
-
-            kwenye Rider Dashboard.
-
-        </div>
-
-    `;
-
-}
+    }
 
 
-/* ==================================================
-   AUTH
-================================================== */
+    // ==========================================
+    // AUTH
+    // ==========================================
 
-onAuthStateChanged(
-    auth,
-    async (user) => {
+    onAuthStateChanged(auth, async (user) => {
 
         if (!user) {
 
-            window.location.href =
-                "login.html";
+            alert("❌ Rider haja-login.");
+
+            window.location.href = "login.html";
 
             return;
-
         }
 
+        currentUser = user;
 
-        currentUser =
-            user;
-
+        console.log(
+            "👤 Rider:",
+            currentUser.uid
+        );
 
         if (orderId) {
 
@@ -680,998 +454,476 @@ onAuthStateChanged(
 
         }
 
-    }
-);
+    });
 
 
-/* ==================================================
-   LOAD ORDER
-================================================== */
+    // ==========================================
+    // LOAD ORDER
+    // ==========================================
 
-async function loadOrder() {
+    async function loadOrder() {
 
-    try {
+        try {
 
-        const orderRef =
-            doc(
+            showPageStatus(
+                "⏳ Inapakia oda...",
+                "info"
+            );
+
+            const orderRef = doc(
                 db,
                 "orders",
                 orderId
             );
 
-
-        const snapshot =
-            await getDoc(
+            const snapshot = await getDoc(
                 orderRef
             );
 
 
-        if (!snapshot.exists()) {
-
-            document.getElementById(
-                "orderInfo"
-            ).innerHTML = `
-
-                <div class="status error">
-
-                    ❌ Oda haipatikani.
-
-                </div>
-
-            `;
-
-            return;
-
-        }
-
-
-        currentOrder =
-            snapshot.data();
-
-
-        /*
-        CHECK RIDER
-        */
-
-        if (
-            currentOrder.riderId &&
-            currentOrder.riderId !==
-                currentUser.uid
-        ) {
-
-            document.getElementById(
-                "orderInfo"
-            ).innerHTML = `
-
-                <div class="status error">
-
-                    ❌ Oda hii imepewa Rider mwingine.
-
-                </div>
-
-            `;
-
-            return;
-
-        }
-
-
-        /*
-        DISPLAY ORDER
-        */
-
-        document.getElementById(
-            "orderInfo"
-        ).innerHTML = `
-
-            <div class="location-box">
-
-                <strong>
-                    📦 Order ID:
-                </strong>
-
-                ${orderId}
-
-                <br>
-
-                <strong>
-                    👤 Customer:
-                </strong>
-
-                ${
-                    currentOrder.customerName ||
-                    "Customer"
-                }
-
-                <br>
-
-                <strong>
-                    📞 Simu:
-                </strong>
-
-                ${
-                    currentOrder.phone ||
-                    "Haijawekwa"
-                }
-
-                <br>
-
-                <strong>
-                    📍 Delivery:
-                </strong>
-
-                ${
-                    currentOrder.deliveryLocation ||
-                    "Haijawekwa"
-                }
-
-                <br>
-
-                <strong>
-                    💰 Total:
-                </strong>
-
-                TZS ${
-                    Number(
-                        currentOrder.total || 0
-                    ).toLocaleString()
-                }
-
-                <br>
-
-                <strong>
-                    📌 Status:
-                </strong>
-
-                ${
-                    currentOrder.status ||
-                    "unknown"
-                }
-
-            </div>
-
-        `;
-
-
-        /*
-        EXISTING LOCATION
-        */
-
-        if (
-            currentOrder.riderLocation
-        ) {
-
-            displayLocation(
-                currentOrder.riderLocation
-            );
-
-        }
-
-
-        /*
-        AUTO START
-        */
-
-        if (
-            currentOrder.status ===
-            "on_the_way"
-        ) {
-
-            setTimeout(
-                () => {
-
-                    startTracking();
-
-                },
-                700
-            );
-
-        }
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        document.getElementById(
-            "orderInfo"
-        ).innerHTML = `
-
-            <div class="status error">
-
-                ❌ Error:
-
-                ${error.message}
-
-            </div>
-
-        `;
-
-    }
-
-}
-
-
-/* ==================================================
-   START TRACKING
-================================================== */
-
-window.startTracking =
-function() {
-
-
-    if (!currentUser) {
-
-        alert(
-            "Rider haja-login."
-        );
-
-        return;
-
-    }
-
-
-    if (!orderId) {
-
-        alert(
-            "Order ID haipo."
-        );
-
-        return;
-
-    }
-
-
-    if (!navigator.geolocation) {
-
-        alert(
-            "❌ Browser hii hai-support GPS."
-        );
-
-        return;
-
-    }
-
-
-    /*
-    HTTPS
-    */
-
-    if (
-        !window.isSecureContext &&
-        location.hostname !== "localhost" &&
-        location.hostname !== "127.0.0.1"
-    ) {
-
-        alert(
-            "❌ GPS inahitaji HTTPS."
-        );
-
-        return;
-
-    }
-
-
-    if (isTracking) {
-
-        showStatus(
-            "ℹ️ GPS tayari inaendelea.",
-            "info"
-        );
-
-        return;
-
-    }
-
-
-    isTracking = true;
-
-
-    document.getElementById(
-        "gpsStatus"
-    ).className =
-        "status success";
-
-
-    document.getElementById(
-        "gpsStatus"
-    ).innerHTML =
-
-        "🟢 GPS LIVE imeanza...";
-
-
-    /*
-    START WATCH
-    */
-
-    watchId =
-        navigator.geolocation.watchPosition(
-
-            async (position) => {
-
-                await handlePosition(
-                    position
+            if (!snapshot.exists()) {
+
+                showPageStatus(
+                    "❌ Oda haipo kwenye Firestore.",
+                    "error"
                 );
 
-            },
+                document.getElementById(
+                    "startBtn"
+                ).disabled = true;
+
+                return;
+            }
 
 
-            (error) => {
+            orderData = snapshot.data();
 
-                handleGPSError(
-                    error
+
+            console.log(
+                "📦 Order:",
+                orderData
+            );
+
+
+            // ==================================
+            // CHECK RIDER
+            // ==================================
+
+            if (
+                orderData.riderId &&
+                orderData.riderId !== currentUser.uid
+            ) {
+
+                showPageStatus(
+                    "❌ Oda hii imepewa Rider mwingine.",
+                    "error"
                 );
 
-            },
+                document.getElementById(
+                    "startBtn"
+                ).disabled = true;
+
+                return;
+            }
 
 
-            {
+            // ==================================
+            // DISPLAY ORDER
+            // ==================================
 
-                enableHighAccuracy:
-                    true,
+            document.getElementById(
+                "customerName"
+            ).textContent =
+                orderData.customerName ||
+                orderData.customer ||
+                orderData.fullName ||
+                "--";
 
-                timeout:
-                    20000,
 
-                maximumAge:
-                    5000
+            document.getElementById(
+                "customerPhone"
+            ).textContent =
+                orderData.phone ||
+                orderData.customerPhone ||
+                "--";
+
+
+            document.getElementById(
+                "deliveryLocation"
+            ).textContent =
+                orderData.deliveryLocation ||
+                orderData.location ||
+                "--";
+
+
+            document.getElementById(
+                "orderTotal"
+            ).textContent =
+                orderData.total || "0";
+
+
+            document.getElementById(
+                "orderStatus"
+            ).textContent =
+                orderData.status || "--";
+
+
+            showPageStatus(
+                "🟢 Oda imepatikana. Unaweza kuanza LIVE GPS.",
+                "success"
+            );
+
+
+            // ==================================
+            // EXISTING RIDER LOCATION
+            // ==================================
+
+            if (
+                orderData.riderLocation &&
+                orderData.riderLocation.latitude &&
+                orderData.riderLocation.longitude
+            ) {
+
+                lastCoords =
+                    orderData.riderLocation;
+
+                updateGPSDisplay(
+                    orderData.riderLocation
+                );
+
+                updateMap(
+                    orderData.riderLocation.latitude,
+                    orderData.riderLocation.longitude
+                );
+
+                document.getElementById(
+                    "mapsBtn"
+                ).disabled = false;
+            }
+
+
+            // ==================================
+            // AUTO START IF ON THE WAY
+            // ==================================
+
+            if (
+                orderData.status === "on_the_way"
+            ) {
+
+                startTracking();
 
             }
 
+        } catch (error) {
+
+            console.error(
+                "LOAD ORDER ERROR:",
+                error
+            );
+
+            showPageStatus(
+                "❌ Imeshindikana kupakia oda:<br>" +
+                error.message,
+                "error"
+            );
+
+        }
+
+    }
+
+
+    // ==========================================
+    // START TRACKING
+    // ==========================================
+
+    window.startTracking = function() {
+
+        if (!currentUser) {
+
+            alert("❌ Rider haja-login.");
+
+            return;
+        }
+
+
+        if (!orderId) {
+
+            alert(
+                "❌ Hakuna Order ID."
+            );
+
+            return;
+        }
+
+
+        if (!navigator.geolocation) {
+
+            showGPSStatus(
+                "❌ Browser hii haisupport GPS.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (isTracking) {
+
+            showGPSStatus(
+                "ℹ️ GPS tayari inaendelea.",
+                "info"
+            );
+
+            return;
+        }
+
+
+        isTracking = true;
+
+
+        document.getElementById(
+            "startBtn"
+        ).disabled = true;
+
+
+        document.getElementById(
+            "stopBtn"
+        ).disabled = false;
+
+
+        showGPSStatus(
+            "📍 Inatafuta location yako...",
+            "info"
         );
 
-};
 
+        watchId =
+            navigator.geolocation.watchPosition(
 
-/* ==================================================
-   HANDLE GPS POSITION
-================================================== */
+                position => {
 
-async function handlePosition(
-    position
-) {
+                    handleLocation(
+                        position
+                    );
 
-    const coords =
-        position.coords;
+                },
 
+                error => {
 
-    const location = {
+                    handleGPSError(
+                        error
+                    );
 
-        latitude:
-            coords.latitude,
+                },
 
-        longitude:
-            coords.longitude,
+                {
+                    enableHighAccuracy: true,
+                    timeout: 20000,
+                    maximumAge: 0
+                }
 
-        accuracy:
-            coords.accuracy,
-
-        altitude:
-            coords.altitude,
-
-        speed:
-            coords.speed,
-
-        heading:
-            coords.heading,
-
-        timestamp:
-            new Date()
+            );
 
     };
 
 
-    /*
-    DISPLAY
-    */
+    // ==========================================
+    // HANDLE LOCATION
+    // ==========================================
 
-    displayLocation(
-        location
-    );
-
-
-    /*
-    SAVE LOCAL HISTORY
-    */
-
-    locationHistory.push(
-        location
-    );
-
-
-    updateHistory();
-
-
-    /*
-    FIRESTORE THROTTLE
-    */
-
-    const now =
-        Date.now();
-
-
-    /*
-    First update immediately.
-    Then once every 5 seconds.
-    */
-
-    if (
-        now -
-        lastFirestoreUpdate
-        < 5000
+    async function handleLocation(
+        position
     ) {
 
-        return;
+        const coords =
+            position.coords;
+
+
+        const data = {
+
+            latitude:
+                coords.latitude,
+
+            longitude:
+                coords.longitude,
+
+            accuracy:
+                coords.accuracy,
+
+            altitude:
+                coords.altitude,
+
+            speed:
+                coords.speed,
+
+            heading:
+                coords.heading
+
+        };
+
+
+        lastCoords = data;
+
+
+        // DISPLAY
+
+        updateGPSDisplay(
+            data
+        );
+
+
+        // MAP
+
+        updateMap(
+            data.latitude,
+            data.longitude
+        );
+
+
+        document.getElementById(
+            "mapsBtn"
+        ).disabled = false;
+
+
+        // HISTORY
+
+        locationHistory.push({
+
+            ...data,
+
+            time:
+                new Date().toLocaleString()
+
+        });
+
+
+        updateHistory();
+
+
+        // FIRESTORE
+
+        await updateFirestoreLocation(
+            data
+        );
 
     }
 
 
-    lastFirestoreUpdate =
-        now;
+    // ==========================================
+    // UPDATE FIRESTORE
+    // ==========================================
+
+    async function updateFirestoreLocation(
+        coords
+    ) {
+
+        const now = Date.now();
 
 
-    /*
-    SEND TO FIRESTORE
-    */
+        // SEND MAXIMUM EVERY 5 SECONDS
 
-    try {
+        if (
+            now -
+            lastFirestoreUpdate <
+            5000
+        ) {
 
-        await updateDoc(
+            return;
+        }
 
-            doc(
+
+        lastFirestoreUpdate = now;
+
+
+        try {
+
+            const orderRef = doc(
                 db,
                 "orders",
                 orderId
-            ),
+            );
 
-            {
 
-                status:
-                    "on_the_way",
+            await updateDoc(
 
-                riderId:
-                    currentUser.uid,
+                orderRef,
 
-                riderLocation: {
+                {
 
-                    latitude:
-                        coords.latitude,
+                    status:
+                        "on_the_way",
 
-                    longitude:
-                        coords.longitude,
+                    riderId:
+                        currentUser.uid,
 
-                    accuracy:
-                        coords.accuracy,
+                    riderLocation: {
 
-                    altitude:
-                        coords.altitude,
+                        latitude:
+                            coords.latitude,
 
-                    speed:
-                        coords.speed,
+                        longitude:
+                            coords.longitude,
 
-                    heading:
-                        coords.heading
+                        accuracy:
+                            coords.accuracy,
 
-                },
+                        altitude:
+                            coords.altitude,
 
-                locationUpdatedAt:
-                    serverTimestamp()
+                        speed:
+                            coords.speed,
 
-            }
+                        heading:
+                            coords.heading
 
-        );
+                    },
 
+                    locationUpdatedAt:
+                        serverTimestamp()
 
-        document.getElementById(
-            "gpsStatus"
-        ).className =
-            "status success";
-
-
-        document.getElementById(
-            "gpsStatus"
-        ).innerHTML = `
-
-            🟢 LIVE GPS ACTIVE
-
-            <br>
-
-            📡 Location imetumwa Firestore
-
-            <br>
-
-            🕐 ${
-                new Date()
-                .toLocaleTimeString()
-            }
-
-        `;
-
-
-    } catch (error) {
-
-        console.error(
-            "Firestore GPS:",
-            error
-        );
-
-
-        document.getElementById(
-            "gpsStatus"
-        ).className =
-            "status error";
-
-
-        document.getElementById(
-            "gpsStatus"
-        ).innerHTML = `
-
-            🔴 GPS ipo lakini
-            Firestore imekataa location.
-
-            <br><br>
-
-            ${error.message}
-
-        `;
-
-    }
-
-}
-
-
-/* ==================================================
-   DISPLAY LOCATION
-================================================== */
-
-function displayLocation(
-    location
-) {
-
-
-    if (!location) {
-
-        return;
-
-    }
-
-
-    const lat =
-        Number(
-            location.latitude
-        );
-
-
-    const lng =
-        Number(
-            location.longitude
-        );
-
-
-    document.getElementById(
-        "currentLat"
-    ).textContent =
-        lat.toFixed(6);
-
-
-    document.getElementById(
-        "currentLng"
-    ).textContent =
-        lng.toFixed(6);
-
-
-    document.getElementById(
-        "accuracy"
-    ).textContent =
-
-        location.accuracy != null
-
-            ? Math.round(
-                location.accuracy
-              ) + " m"
-
-            : "--";
-
-
-    document.getElementById(
-        "speed"
-    ).textContent =
-
-        location.speed != null
-
-            ? (
-                location.speed * 3.6
-              ).toFixed(1)
-              + " km/h"
-
-            : "0 km/h";
-
-
-    /*
-    GOOGLE MAPS LINK
-    */
-
-    const mapsURL =
-        "https://www.google.com/maps?q=" +
-        lat +
-        "," +
-        lng;
-
-
-    document.getElementById(
-        "googleMapsLink"
-    ).href =
-        mapsURL;
-
-
-    /*
-    MAP
-    */
-
-    document.getElementById(
-        "mapContainer"
-    ).innerHTML = `
-
-        <iframe
-
-            class="map"
-
-            src="https://www.google.com/maps?q=${lat},${lng}&output=embed"
-
-            loading="lazy">
-
-        </iframe>
-
-    `;
-
-}
-
-
-/* ==================================================
-   LOCATION HISTORY
-================================================== */
-
-function updateHistory() {
-
-    const container =
-        document.getElementById(
-            "history"
-        );
-
-
-    if (
-        locationHistory.length === 0
-    ) {
-
-        container.innerHTML =
-            "Hakuna location bado.";
-
-        return;
-
-    }
-
-
-    const latest =
-        locationHistory
-        .slice(-30)
-        .reverse();
-
-
-    container.innerHTML =
-        latest.map(
-            (loc, index) => `
-
-            <div class="location-entry">
-
-                <strong>
-                    📍 Location
-                </strong>
-
-                <br>
-
-                Lat:
-                ${Number(
-                    loc.latitude
-                ).toFixed(6)}
-
-                <br>
-
-                Lng:
-                ${Number(
-                    loc.longitude
-                ).toFixed(6)}
-
-                <br>
-
-                Accuracy:
-                ${
-                    Math.round(
-                        loc.accuracy
-                    )
-                }m
-
-                <br>
-
-                Speed:
-                ${
-                    loc.speed != null
-                        ? (
-                            loc.speed *
-                            3.6
-                          ).toFixed(1)
-                        : "0"
-                }
-                km/h
-
-                <br>
-
-                Time:
-                ${
-                    new Date(
-                        loc.timestamp
-                    ).toLocaleTimeString()
                 }
 
-            </div>
-
-        `
-        )
-        .join("");
-
-}
+            );
 
 
-/* ==================================================
-   GPS ERROR
-================================================== */
-
-function handleGPSError(
-    error
-) {
-
-    console.error(
-        "GPS Error:",
-        error
-    );
+            console.log(
+                "🔥 GPS imehifadhiwa Firestore:",
+                coords.latitude,
+                coords.longitude
+            );
 
 
-    let message =
-        "❌ GPS error.";
+            showGPSStatus(
+                "🟢 LIVE GPS inaendelea<br>" +
+                "📡 Location imetumwa Firestore",
+                "success"
+            );
 
 
-    if (
-        error.code ===
-        error.PERMISSION_DENIED
-    ) {
+        } catch (error) {
 
-        message =
-            "❌ Location permission imekataliwa.";
+            console.error(
+                "FIRESTORE GPS ERROR:",
+                error
+            );
+
+
+            showGPSStatus(
+                "⚠️ GPS ipo lakini Firestore haikubali:<br>" +
+                error.message,
+                "error"
+            );
+
+        }
 
     }
 
 
-    else if (
-        error.code ===
-        error.POSITION_UNAVAILABLE
-    ) {
-
-        message =
-            "❌ GPS location haipatikani.";
-
-    }
-
-
-    else if (
-        error.code ===
-        error.TIMEOUT
-    ) {
-
-        message =
-            "❌ GPS ime-timeout.";
-
-    }
-
-
-    document.getElementById(
-        "gpsStatus"
-    ).className =
-        "status error";
-
-
-    document.getElementById(
-        "gpsStatus"
-    ).innerHTML =
-        message;
-
-
-    isTracking = false;
-
-}
-
-
-/* ==================================================
-   STOP TRACKING
-================================================== */
-
-window.stopTracking =
-function() {
-
-
-    if (
-        watchId !== null
-    ) {
-
-        navigator.geolocation.clearWatch(
-            watchId
-        );
-
-        watchId = null;
-
-    }
-
-
-    isTracking = false;
-
-
-    document.getElementById(
-        "gpsStatus"
-    ).className =
-        "status warning";
-
-
-    document.getElementById(
-        "gpsStatus"
-    ).innerHTML =
-
-        "⏹️ Live GPS imesimamishwa.";
-
-};
-
-
-/* ==================================================
-   COMPLETE DELIVERY
-================================================== */
-
-window.completeDelivery =
-async function() {
-
-
-    if (!currentUser ||
-        !orderId) {
-
-        alert(
-            "Taarifa za oda hazijakamilika."
-        );
-
-        return;
-
-    }
-
-
-    const confirmed =
-        confirm(
-            "Una uhakika umefikisha oda kwa Customer?"
-        );
-
-
-    if (!confirmed) {
-
-        return;
-
-    }
-
-
-    try {
-
-        /*
-        STOP GPS
-        */
-
-        window.stopTracking();
-
-
-        /*
-        UPDATE ORDER
-        */
-
-        await updateDoc(
-
-            doc(
-                db,
-                "orders",
-                orderId
-            ),
-
-            {
-
-                status:
-                    "delivered",
-
-                deliveredAt:
-                    serverTimestamp(),
-
-                deliveryCompletedBy:
-                    currentUser.uid
-
-            }
-
-        );
-
-
-        alert(
-            "✅ Oda imefikishwa kwa Customer!"
-        );
-
-
-        window.location.href =
-            "rider.html";
-
-
-    } catch (error) {
-
-        console.error(error);
-
-
-        alert(
-
-            "❌ Imeshindikana kukamilisha delivery:\n\n" +
-
-            error.message
-
-        );
-
-    }
-
-};
-
-
-/* ==================================================
-   BACK TO RIDER
-================================================== */
-
-window.backToRider =
-function() {
-
-    window.stopTracking();
-
-    window.location.href =
-        "rider.html";
-
-};
-
-
-/* ==================================================
-   STATUS
-================================================== */
-
-function showStatus(
-    message,
-    type
-) {
-
-    const element =
-        document.getElementById(
-            "gpsStatus"
-        );
-
-
-    element.className =
-        "status " + type;
-
-
-    element.innerHTML =
-        message;
-
-}
-
-
-/* ==================================================
-   STOP GPS ON PAGE CLOSE
-================================================== */
-
-window.addEventListener(
-    "beforeunload",
-    () => {
+    // ==========================================
+    // STOP TRACKING
+    // ==========================================
+
+    window.stopTracking = function() {
 
         if (
             watchId !== null
@@ -1681,14 +933,475 @@ window.addEventListener(
                 watchId
             );
 
+            watchId = null;
+
         }
 
-    }
-);
 
+        isTracking = false;
+
+
+        document.getElementById(
+            "startBtn"
+        ).disabled = false;
+
+
+        document.getElementById(
+            "stopBtn"
+        ).disabled = true;
+
+
+        showGPSStatus(
+            "⏹️ GPS imesimamishwa.",
+            "info"
+        );
+
+    };
+
+
+    // ==========================================
+    // COMPLETE DELIVERY
+    // ==========================================
+
+    window.completeDelivery =
+        async function() {
+
+        if (!orderId) {
+
+            alert(
+                "❌ Hakuna Order ID."
+            );
+
+            return;
+        }
+
+
+        const confirmDelivery =
+            confirm(
+                "Je, umefikisha oda hii kwa Customer?"
+            );
+
+
+        if (!confirmDelivery) {
+
+            return;
+
+        }
+
+
+        try {
+
+            if (watchId !== null) {
+
+                navigator.geolocation.clearWatch(
+                    watchId
+                );
+
+                watchId = null;
+
+            }
+
+
+            await updateDoc(
+
+                doc(
+                    db,
+                    "orders",
+                    orderId
+                ),
+
+                {
+
+                    status:
+                        "delivered",
+
+                    deliveredAt:
+                        serverTimestamp(),
+
+                    deliveryCompletedBy:
+                        currentUser.uid
+
+                }
+
+            );
+
+
+            isTracking = false;
+
+
+            alert(
+                "✅ Delivery imekamilika!"
+            );
+
+
+            window.location.href =
+                "rider.html";
+
+
+        } catch (error) {
+
+            console.error(error);
+
+
+            alert(
+                "❌ Imeshindikana kukamilisha delivery:\n\n" +
+                error.message
+            );
+
+        }
+
+    };
+
+
+    // ==========================================
+    // GPS DISPLAY
+    // ==========================================
+
+    function updateGPSDisplay(
+        coords
+    ) {
+
+        document.getElementById(
+            "latitude"
+        ).textContent =
+            Number(coords.latitude)
+                .toFixed(6);
+
+
+        document.getElementById(
+            "longitude"
+        ).textContent =
+            Number(coords.longitude)
+                .toFixed(6);
+
+
+        document.getElementById(
+            "accuracy"
+        ).textContent =
+            coords.accuracy
+                ? Math.round(
+                    coords.accuracy
+                ) + " m"
+                : "--";
+
+
+        document.getElementById(
+            "altitude"
+        ).textContent =
+            coords.altitude != null
+                ? Number(
+                    coords.altitude
+                ).toFixed(2) + " m"
+                : "--";
+
+
+        document.getElementById(
+            "speed"
+        ).textContent =
+            coords.speed != null
+                ? (
+                    coords.speed * 3.6
+                ).toFixed(2) +
+                " km/h"
+                : "0 km/h";
+
+
+        document.getElementById(
+            "lastUpdate"
+        ).textContent =
+            new Date().toLocaleString();
+
+    }
+
+
+    // ==========================================
+    // MAP
+    // ==========================================
+
+    function updateMap(
+        latitude,
+        longitude
+    ) {
+
+        const mapURL =
+            "https://www.google.com/maps?q=" +
+            latitude +
+            "," +
+            longitude +
+            "&output=embed";
+
+
+        document.getElementById(
+            "mapContainer"
+        ).innerHTML = `
+
+            <iframe
+                src="${mapURL}"
+                loading="lazy">
+            </iframe>
+
+        `;
+
+    }
+
+
+    // ==========================================
+    // OPEN GOOGLE MAPS
+    // ==========================================
+
+    window.openGoogleMaps =
+        function() {
+
+        if (!lastCoords) {
+
+            alert(
+                "❌ Hakuna GPS location bado."
+            );
+
+            return;
+        }
+
+
+        const url =
+            "https://www.google.com/maps?q=" +
+            lastCoords.latitude +
+            "," +
+            lastCoords.longitude;
+
+
+        window.open(
+            url,
+            "_blank"
+        );
+
+    };
+
+
+    // ==========================================
+    // HISTORY
+    // ==========================================
+
+    function updateHistory() {
+
+        const history =
+            document.getElementById(
+                "history"
+            );
+
+
+        if (
+            locationHistory.length === 0
+        ) {
+
+            history.innerHTML = `
+                <p style="text-align:center;color:#888;">
+                    Hakuna location bado.
+                </p>
+            `;
+
+            return;
+        }
+
+
+        history.innerHTML =
+            locationHistory
+                .slice()
+                .reverse()
+                .map(
+                    (item, index) => `
+
+                    <div class="history-item">
+
+                        <strong>
+                            📍 Location #${
+                                locationHistory.length -
+                                index
+                            }
+                        </strong>
+
+                        <br>
+
+                        Latitude:
+                        ${Number(
+                            item.latitude
+                        ).toFixed(6)}
+
+                        <br>
+
+                        Longitude:
+                        ${Number(
+                            item.longitude
+                        ).toFixed(6)}
+
+                        <br>
+
+                        Accuracy:
+                        ${
+                            item.accuracy
+                            ? Math.round(
+                                item.accuracy
+                            )
+                            : "--"
+                        }m
+
+                        <br>
+
+                        🚀 Speed:
+                        ${
+                            item.speed != null
+                            ? (
+                                item.speed *
+                                3.6
+                            ).toFixed(2)
+                            : "0"
+                        } km/h
+
+                        <br>
+
+                        🕐 ${
+                            item.time
+                        }
+
+                    </div>
+
+                `
+                )
+                .join("");
+
+    }
+
+
+    // ==========================================
+    // GPS ERROR
+    // ==========================================
+
+    function handleGPSError(
+        error
+    ) {
+
+        let message =
+            "❌ GPS Error";
+
+
+        switch (
+            error.code
+        ) {
+
+            case 1:
+
+                message =
+                    "❌ GPS permission imekataliwa. Ruhusu Location kwenye browser.";
+
+                break;
+
+
+            case 2:
+
+                message =
+                    "❌ GPS location haipatikani.";
+
+                break;
+
+
+            case 3:
+
+                message =
+                    "❌ GPS ime-timeout.";
+
+                break;
+
+        }
+
+
+        showGPSStatus(
+            message,
+            "error"
+        );
+
+    }
+
+
+    // ==========================================
+    // STATUS FUNCTIONS
+    // ==========================================
+
+    function showPageStatus(
+        message,
+        type
+    ) {
+
+        const element =
+            document.getElementById(
+                "pageStatus"
+            );
+
+
+        element.innerHTML =
+            message;
+
+
+        element.className =
+            "status " + type;
+
+    }
+
+
+    function showGPSStatus(
+        message,
+        type
+    ) {
+
+        const element =
+            document.getElementById(
+                "gpsStatus"
+            );
+
+
+        element.innerHTML =
+            message;
+
+
+        element.className =
+            "status " + type;
+
+    }
+
+
+    // ==========================================
+    // BACK TO RIDER
+    // ==========================================
+
+    window.goBack =
+        function() {
+
+        window.location.href =
+            "rider.html";
+
+    };
+
+
+    // ==========================================
+    // STOP GPS WHEN PAGE CLOSES
+    // ==========================================
+
+    window.addEventListener(
+        "beforeunload",
+        () => {
+
+            if (
+                watchId !== null
+            ) {
+
+                navigator.geolocation.clearWatch(
+                    watchId
+                );
+
+            }
+
+        }
+    );
 
 </script>
 
 </body>
-
 </html>
